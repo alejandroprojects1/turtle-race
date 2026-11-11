@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-  <meta name="theme-color" content="#07080f">
+  <meta name="theme-color" content="#080914">
   <meta name="description" content="Turtle Race: corra com a tartaruga e aprenda Python turtle!">
   <title>Turtle Race</title>
   <link rel="icon" type="image/png" href="assets/icon.png">
@@ -15,50 +15,78 @@
 </head>
 <body>
   <main id="title-screen" class="screen active">
-    <!-- Fundo: brilho neon + pista em perspectiva -->
+    <!-- Fundo -->
     <div class="bg" aria-hidden="true">
-      <div class="glow glow-red"></div>
-      <div class="glow glow-green"></div>
-      <div class="horizon"></div>
+      <div class="aurora a1"></div>
+      <div class="aurora a2"></div>
+      <div class="aurora a3"></div>
+      <div class="checker"></div>
       <div class="floor"><div class="grid"></div></div>
-      <div class="streaks"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="horizon"></div>
+      <canvas id="fx"></canvas>
+      <div class="vignette"></div>
     </div>
 
     <!-- Barra superior -->
     <header class="topbar">
       <div class="chips">
-        <span class="chip"><span class="chip-ico">🏆</span><span id="best-score">0</span></span>
-        <span class="chip"><span class="chip-ico">⭐</span><span id="total-stars">0</span></span>
+        <span class="chip" title="Recorde">
+          <svg viewBox="0 0 24 24" class="ico gold"><path d="M7 3h10v2h3v3a4 4 0 0 1-4 4h-.5A5 5 0 0 1 13 14.9V18h3v3H8v-3h3v-3.1A5 5 0 0 1 8.5 12H8a4 4 0 0 1-4-4V5h3zm0 4H6v1a2 2 0 0 0 1 1.700zm10 0v2.700A2 2 0 0 0 18 8V7z"/></svg>
+          <span id="best-score">0</span>
+        </span>
+        <span class="chip" title="Estrelas">
+          <svg viewBox="0 0 24 24" class="ico gold"><path d="M12 2.500l2.9 6 6.6.900-4.8 4.6 1.2 6.500L12 17.4 6.1 20.500l1.2-6.500L2.5 9.400l6.6-.900z"/></svg>
+          <span id="total-stars">0</span>
+        </span>
       </div>
       <button id="sound-toggle" class="icon-btn" aria-label="Som ligado" title="Som">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path class="spk" d="M4 9h4l5-4v14l-5-4H4z"/><path class="wave" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/><path class="mute" d="M16 9l6 6M22 9l-6 6"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path class="spk" d="M4 9h4l5-4v14l-5-4H4z"/><path class="wave" d="M16.5 8.500a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/><path class="mute" d="M16 9l6 6M22 9l-6 6"/></svg>
       </button>
     </header>
 
     <div class="title-layout">
+      <!-- Tartaruga no palco -->
       <div class="hero">
-        <div class="hero-ring" aria-hidden="true"></div>
-        <img src="assets/turtle-kart.png" alt="Tartaruga piloto no kart vermelho número 1" class="hero-kart" draggable="false">
-        <div class="hero-shadow" aria-hidden="true"></div>
+        <div class="stage" aria-hidden="true">
+          <div class="ring r1"></div>
+          <div class="stage-glow"></div>
+        </div>
+        <div class="kart-wrap">
+          <div class="exhaust" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          <div class="headlight" aria-hidden="true"></div>
+          <img src="assets/turtle-kart.png" alt="Tartaruga piloto no kart vermelho número 1" class="hero-kart" draggable="false">
+          <img src="assets/turtle-kart.png" alt="" class="hero-reflect" draggable="false" aria-hidden="true">
+        </div>
       </div>
 
+      <!-- Painel -->
       <section class="panel">
         <p class="eyebrow"><span class="dot"></span> Python turtle · 5º ano</p>
-        <h1 class="logo"><span class="l1">TURTLE</span><span class="l2">RACE</span></h1>
+
+        <div class="logo-wrap">
+          <h1 class="logo"><span class="l1">TURTLE</span><span class="l2">RACE</span></h1>
+          <div class="logo-strip" aria-hidden="true"></div>
+        </div>
 
         <div class="terminal" aria-label="Exemplo de código Python">
+          <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
           <span class="prompt">&gt;&gt;&gt;</span>
-          <code id="typer"></code><span class="caret"></span>
+          <span class="code-line"><code id="typer"></code><span class="caret"></span></span>
+          <svg class="shape" viewBox="0 0 40 40" aria-hidden="true"><path id="shape-path" pathLength="100" d=""/></svg>
         </div>
 
         <nav class="menu">
           <button class="btn btn-primary" data-action="race">
-            <span class="btn-ico">🏁</span>
+            <span class="btn-ico">
+              <svg viewBox="0 0 24 24"><path d="M5 3v18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/><path d="M5 4h14v10H5z" fill="#fff"/><path d="M5 4h3.500v3.300H5zM12 4h3.500v3.300H12zM8.5 7.300H12v3.400H8.500zM15.5 7.300H19v3.400h-3.500zM5 10.700h3.500V14H5zM12 10.700h3.500V14H12z" fill="#15172a"/></svg>
+            </span>
             <span class="btn-label"><b>Corrida</b><small>Dê voltas e responda</small></span>
-            <svg class="btn-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+            <span class="btn-go"><svg viewBox="0 0 24 24"><path d="M8 5.500v13l11-6.500z"/></svg></span>
           </button>
           <button class="btn btn-glass" data-action="train">
-            <span class="btn-ico">📚</span>
+            <span class="btn-ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.500C10 5 7 4.5 3.5 5v13c3.5-.500 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.500V5C17 4.5 14 5 12 6.500zM12 6.500v13"/></svg>
+            </span>
             <span class="btn-label"><b>Treino</b><small>Pratique sem pressa</small></span>
             <svg class="btn-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
           </button>
@@ -70,6 +98,7 @@
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script src="js/audio.js"></script>
+  <script src="js/fx.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

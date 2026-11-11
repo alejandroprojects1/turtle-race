@@ -63,9 +63,28 @@
       return esc(m);
     });
   }
+  // Formas que a "tartaruga" desenha ao lado do código
+  const shapePath = document.getElementById('shape-path');
+  const shapes = [
+    'M8 8H32V32H8Z',                                   // quadrado
+    'M20 6L34 32H6Z',                                  // triângulo
+    'M5 12H35V28H5Z',                                  // retângulo
+    'M20 5L24.400 15 35 16 27 23.500 29.500 34 20 28.500 10.500 34 13 23.500 5 16 15.600 15Z', // estrela
+    'M20 5L33 12.500V27.500L20 35 7 27.500V12.500Z',           // hexágono
+  ].map((d) => d.replace(/(\d)00\b/g, '$1'));
+  const shapeColors = ['#ff4656', '#8be04e', '#4cc9ff', '#ffc83d', '#c58bff'];
+  function drawShape(n) {
+    shapePath.setAttribute('d', shapes[n % shapes.length]);
+    shapePath.style.stroke = shapeColors[n % shapeColors.length];
+    shapePath.style.animation = 'none';
+    void shapePath.getBoundingClientRect();
+    shapePath.style.animation = '';
+  }
+
   let li = 0;
   function typeLine() {
     const text = lines[li % lines.length];
+    drawShape(li);
     let i = 0;
     const step = () => {
       i++;
@@ -77,6 +96,7 @@
   }
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     typer.innerHTML = highlight(lines[0]);
+    drawShape(0);
   } else {
     setTimeout(typeLine, 900);
   }

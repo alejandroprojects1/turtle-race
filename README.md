@@ -18,6 +18,7 @@ Abra o link do jogo (GitHub Pages) no navegador. No celular, jogue com o aparelh
 index.html        página do jogo
 css/style.css     visual
 js/audio.js       sons gerados pelo navegador (Web Audio)
+js/fx.js          faíscas de velocidade do fundo
 js/main.js        lógica das telas
 assets/           imagens (tartaruga piloto)
 docs/GDD.md       documento de design do jogo
