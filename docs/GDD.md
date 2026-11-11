@@ -59,7 +59,7 @@ Cada acerto seguido enche a barra de turbo. Barra cheia: o kart acelera, fica **
 ### 2.8 Bandeira de pergunta 🏁
 Ao passar pela bandeira, **o jogo congela** e abre um cartão de pergunta.
 - **Acertou:** a tartaruga desenha o código numa mini lousa e a corrida volta de onde parou.
-- **Errou:** mostra uma dica curta e amigável e a criança tenta de novo (as opções erradas ficam apagadas). A pergunta vai para a lista de revisão do **Modo Treino**.
+- **Errou:** **perde 3 segundos**, aparece uma dica curta e amigável e a criança tenta de novo (as opções erradas ficam apagadas) até acertar. A pergunta vai para a lista de revisão do **Modo Treino**.
 
 ### 2.9 Pit Stop 🔧 (entre as voltas)
 Ao cruzar a linha de chegada, o kart entra no box e aparece um **desafio de criar código**: montar um programa inteiro para uma forma pedida (ex.: "quadrado vermelho preenchido").
