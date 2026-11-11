@@ -3,73 +3,71 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-  <meta name="theme-color" content="#1b6fd1">
+  <meta name="theme-color" content="#07080f">
   <meta name="description" content="Turtle Race: corra com a tartaruga e aprenda Python turtle!">
   <title>Turtle Race</title>
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="apple-touch-icon" href="assets/icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@700;900&family=Fira+Code:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@1,800;1,900&family=Outfit:wght@400;600;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <!-- Tela inicial -->
   <main id="title-screen" class="screen active">
-    <div class="sky">
-      <div class="sun"></div>
-      <div class="cloud c1"></div>
-      <div class="cloud c2"></div>
-      <div class="cloud c3"></div>
-      <div class="hills"></div>
+    <!-- Fundo: brilho neon + pista em perspectiva -->
+    <div class="bg" aria-hidden="true">
+      <div class="glow glow-red"></div>
+      <div class="glow glow-green"></div>
+      <div class="horizon"></div>
+      <div class="floor"><div class="grid"></div></div>
+      <div class="streaks"><i></i><i></i><i></i><i></i><i></i><i></i></div>
     </div>
 
-    <!-- Códigos flutuando ao fundo -->
-    <div class="floating-code" aria-hidden="true">
-      <span style="--x:44%;--y:5%;--d:0s">forward(100)</span>
-      <span style="--x:60%;--y:17%;--d:2.3s">left(90)</span>
-      <span style="--x:47%;--y:27%;--d:4.6s">color("red")</span>
-    </div>
-
-    <div class="road">
-      <div class="road-lines"></div>
-    </div>
+    <!-- Barra superior -->
+    <header class="topbar">
+      <div class="chips">
+        <span class="chip"><span class="chip-ico">🏆</span><span id="best-score">0</span></span>
+        <span class="chip"><span class="chip-ico">⭐</span><span id="total-stars">0</span></span>
+      </div>
+      <button id="sound-toggle" class="icon-btn" aria-label="Som ligado" title="Som">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path class="spk" d="M4 9h4l5-4v14l-5-4H4z"/><path class="wave" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/><path class="mute" d="M16 9l6 6M22 9l-6 6"/></svg>
+      </button>
+    </header>
 
     <div class="title-layout">
-      <header class="logo">
-        <h1><span class="t1">Turtle</span> <span class="t2">Race</span></h1>
-        <p class="subtitle">Corra, desvie e aprenda <code>Python turtle</code>!</p>
-      </header>
-
       <div class="hero">
-        <div class="speed-lines" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <div class="hero-ring" aria-hidden="true"></div>
         <img src="assets/turtle-kart.png" alt="Tartaruga piloto no kart vermelho número 1" class="hero-kart" draggable="false">
-        <div class="dust" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="hero-shadow" aria-hidden="true"></div>
       </div>
 
-      <nav class="menu">
-        <button class="btn btn-race" data-action="race">
-          <span class="btn-icon">🏁</span>
-          <span class="btn-text"><b>Corrida</b><small>Dê voltas e responda!</small></span>
-        </button>
-        <button class="btn btn-train" data-action="train">
-          <span class="btn-icon">📚</span>
-          <span class="btn-text"><b>Treino</b><small>Pratique sem pressa</small></span>
-        </button>
-      </nav>
-    </div>
+      <section class="panel">
+        <p class="eyebrow"><span class="dot"></span> Python turtle · 5º ano</p>
+        <h1 class="logo"><span class="l1">TURTLE</span><span class="l2">RACE</span></h1>
 
-    <button id="sound-toggle" class="icon-btn" aria-label="Som ligado" title="Som">🔊</button>
+        <div class="terminal" aria-label="Exemplo de código Python">
+          <span class="prompt">&gt;&gt;&gt;</span>
+          <code id="typer"></code><span class="caret"></span>
+        </div>
+
+        <nav class="menu">
+          <button class="btn btn-primary" data-action="race">
+            <span class="btn-ico">🏁</span>
+            <span class="btn-label"><b>Corrida</b><small>Dê voltas e responda</small></span>
+            <svg class="btn-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+          <button class="btn btn-glass" data-action="train">
+            <span class="btn-ico">📚</span>
+            <span class="btn-label"><b>Treino</b><small>Pratique sem pressa</small></span>
+            <svg class="btn-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </nav>
+      </section>
+    </div>
   </main>
 
-  <!-- Aviso temporário para partes ainda não feitas -->
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-
-  <!-- Dica para girar o celular -->
-  <div id="rotate-hint" aria-hidden="true">
-    <div class="phone">📱</div>
-    <p>Gire o celular para jogar deitado!</p>
-  </div>
 
   <script src="js/audio.js"></script>
   <script src="js/main.js"></script>
