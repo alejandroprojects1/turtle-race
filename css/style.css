@@ -679,4 +679,4 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   75% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
   100% { transform: translate(-50%, -50%) scale(.7); opacity: 0; }
 }
-@keyframes nudge { 50% { transform: translateY(-3px); } }
+@keyframes nudge { 50% { transform: translateX(-3px); } }

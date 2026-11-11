@@ -5,7 +5,7 @@ Jogo educativo para o **5º ano** aprender os conceitos básicos de **Python tur
 Roda direto no navegador, no celular ou no computador, sem instalar nada.
 
 ## Como jogar
-Abra o link do jogo (GitHub Pages) no navegador. No celular, jogue com o aparelho deitado.
+Abra o link do jogo (GitHub Pages) no navegador. No celular, deslize o dedo para os lados para trocar de faixa.
 
 ## Como publicar (GitHub Pages)
 1. No GitHub, abra **Settings → Pages**.
@@ -19,7 +19,8 @@ index.html        página do jogo
 css/style.css     visual
 js/audio.js       sons gerados pelo navegador (Web Audio)
 js/fx.js          faíscas de velocidade do fundo
-js/game.js        corrida: pista, kart e controles
+js/kart.js        desenho do kart visto por trás
+js/game.js        corrida 3D: pista, kart e controles
 js/main.js        tela inicial e menu
 assets/           imagens (tartaruga piloto)
 docs/GDD.md       documento de design do jogo

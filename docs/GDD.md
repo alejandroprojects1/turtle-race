@@ -3,7 +3,7 @@
 Jogo educativo para o **5º ano** aprender os conceitos básicos de **Python turtle**: comandos de movimento, cores e reconhecimento de códigos que formam figuras geométricas.
 
 - **Plataforma:** navegador (HTML + JavaScript + Canvas), publicado no **GitHub Pages** — nada para instalar.
-- **Foco:** **smartphone** (modo paisagem), funcionando também no PC.
+- **Foco:** **smartphone** (em pé), funcionando também deitado e no PC.
 - **Idioma:** interface em português; código em **Python real** (`begin_fill()`, `end_fill()`).
 - **Arte:** a tartaruga piloto do kart vermelho nº 1 (imagem enviada pela professora) é o personagem principal.
 
@@ -21,12 +21,12 @@ Jogo educativo para o **5º ano** aprender os conceitos básicos de **Python tur
 ## 2. Corrida
 
 ### 2.1 Controles
-- **Smartphone:** deslizar ↑/↓ (ou tocar na metade de cima/baixo da tela) troca de faixa.
-- **PC:** setas ↑/↓ ou W/S.
+- **Smartphone:** deslizar ←/→ (ou tocar no lado esquerdo/direito da tela) troca de faixa.
+- **PC:** setas ←/→ ou A/D.
 - Botão de pausa ⏸ e botão de som 🔊/🔇.
 
 ### 2.2 Pista
-Visão lateral, 3 faixas, rolagem contínua para a direita. Cada **volta** termina numa linha de chegada.
+**Visão 3D por trás do kart**, com o celular em pé (funciona deitado também). A pista tem 3 faixas e vai até o horizonte; **obstáculos, itens e rivais surgem lá em cima (no horizonte) e vêm em direção ao jogador**. Cada **volta** termina num pórtico de chegada.
 
 ### 2.3 Voltas e níveis
 A cada volta, a velocidade sobe, os obstáculos ficam mais difíceis e o tema das perguntas avança.
