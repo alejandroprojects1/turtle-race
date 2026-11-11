@@ -1,4 +1,4 @@
-// Turtle Race — parte 1: tela inicial e menu.
+// Turtle Race — tela inicial e menu.
 (() => {
   const toast = document.getElementById('toast');
   const soundBtn = document.getElementById('sound-toggle');
@@ -105,8 +105,8 @@
   document.querySelectorAll('.menu .btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       if (btn.dataset.action === 'race') {
-        Sound.vroom();
-        showToast('🏁 A pista está sendo construída (parte 2)');
+        Sound.ensure();
+        Game.start();
       } else {
         Sound.honk();
         showToast('📚 O Modo Treino chega em breve');

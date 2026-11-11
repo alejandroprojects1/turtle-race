@@ -95,10 +95,44 @@
     </div>
   </main>
 
+  <!-- Tela da corrida -->
+  <section id="game-screen" class="screen">
+    <canvas id="game-canvas"></canvas>
+
+    <div class="hud">
+      <span class="chip hud-lap">Volta <b id="hud-lap">1</b></span>
+      <div class="hud-bar" aria-hidden="true">
+        <div class="hud-bar-track"><div id="hud-bar-fill"></div></div>
+        <img id="hud-bar-kart" src="assets/icon.png" alt="">
+        <span class="hud-flag"></span>
+      </div>
+      <button id="btn-pause" class="icon-btn" aria-label="Pausar">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path class="spk" d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" stroke="none"/></svg>
+      </button>
+    </div>
+
+    <div id="countdown" class="countdown" aria-live="assertive"></div>
+    <div id="banner" class="banner" role="status"></div>
+    <div id="hint" class="hint">
+      <span class="hint-arrows"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg><svg viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg></span>
+      <span class="hint-touch">Deslize para cima ou para baixo para trocar de faixa</span>
+      <span class="hint-keys">Use as setas ↑ ↓ para trocar de faixa</span>
+    </div>
+
+    <div id="pause-overlay" class="overlay">
+      <div class="card">
+        <h2>Pausado</h2>
+        <button id="btn-resume" class="btn btn-primary"><span class="btn-label"><b>Continuar</b></span><span class="btn-go"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg></span></button>
+        <button id="btn-exit" class="btn btn-glass"><span class="btn-label"><b>Sair</b></span></button>
+      </div>
+    </div>
+  </section>
+
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script src="js/audio.js"></script>
   <script src="js/fx.js"></script>
+  <script src="js/game.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

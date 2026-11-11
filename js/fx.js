@@ -4,6 +4,7 @@
   if (!canvas) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const ctx = canvas.getContext('2d');
+  const title = document.getElementById('title-screen');
   const colors = ['255,255,255', '255,70,80', '90,205,255', '150,230,90'];
   let w = 0, h = 0, dpr = 1, parts = [], last = 0, running = true;
 
@@ -30,6 +31,7 @@
     if (!running) return;
     const dt = Math.min(0.05, (t - last) / 1000 || 0);
     last = t;
+    if (!title.classList.contains('active')) { requestAnimationFrame(frame); return; }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
     ctx.lineCap = 'round';

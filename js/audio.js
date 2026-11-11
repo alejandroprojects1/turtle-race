@@ -72,11 +72,64 @@ const Sound = (() => {
     tone({ freq: 659, type: 'square', dur: 0.16, vol: 0.08, delay: 0.13 });
   }
 
+  function beep(go) {
+    tone({ freq: go ? 880 : 440, type: 'square', dur: go ? 0.45 : 0.16, vol: 0.09 });
+  }
+  function swish(dir) {
+    tone({ freq: dir < 0 ? 420 : 620, to: dir < 0 ? 760 : 380, type: 'sine', dur: 0.12, vol: 0.12 });
+  }
+  function fanfare() {
+    [523, 659, 784, 1047].forEach((f, i) => tone({ freq: f, type: 'triangle', dur: 0.18, vol: 0.16, delay: i * 0.1 }));
+  }
+
+  // Motor contínuo: um "prrrr" grave e macio que sobe de tom com a velocidade.
+  let eng = null;
+  function engineStart() {
+    const c = ensure();
+    if (!c || eng) return;
+    const out = c.createGain();
+    out.gain.value = 0.0001;
+    const filter = c.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 420;
+    const o1 = c.createOscillator(); o1.type = 'sawtooth'; o1.frequency.value = 58;
+    const o2 = c.createOscillator(); o2.type = 'triangle'; o2.frequency.value = 29;
+    const g2 = c.createGain(); g2.gain.value = 1.4;
+    // tremor do motor ("putt-putt")
+    const lfo = c.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 11;
+    const trem = c.createGain(); trem.gain.value = 0.6;
+    const lfoGain = c.createGain(); lfoGain.gain.value = 0.4;
+    lfo.connect(lfoGain).connect(trem.gain);
+    o1.connect(filter); o2.connect(g2).connect(filter);
+    filter.connect(trem).connect(out).connect(master);
+    o1.start(); o2.start(); lfo.start();
+    out.gain.exponentialRampToValueAtTime(0.11, c.currentTime + 0.3);
+    eng = { out, filter, o1, o2, lfo };
+  }
+  function engineSet(v, revving) {
+    if (!eng) return;
+    const t = ctx.currentTime;
+    const rev = revving ? 0.25 + 0.2 * Math.sin(t * 9) : 0;   // acelera parado na largada
+    const x = Math.max(0, Math.min(1, v + rev));
+    eng.o1.frequency.setTargetAtTime(58 + x * 82, t, 0.08);
+    eng.o2.frequency.setTargetAtTime(29 + x * 41, t, 0.08);
+    eng.lfo.frequency.setTargetAtTime(11 + x * 16, t, 0.08);
+    eng.filter.frequency.setTargetAtTime(380 + x * 700, t, 0.08);
+  }
+  function engineStop() {
+    if (!eng) return;
+    const e = eng; eng = null;
+    const t = ctx.currentTime;
+    e.out.gain.cancelScheduledValues(t);
+    e.out.gain.setTargetAtTime(0.0001, t, 0.08);
+    setTimeout(() => { [e.o1, e.o2, e.lfo].forEach((o) => { try { o.stop(); } catch (err) { /* já parou */ } }); }, 500);
+  }
+
   function setEnabled(on) {
     enabled = on;
     try { localStorage.setItem('tr-sound', on ? 'on' : 'off'); } catch (e) { /* sem storage */ }
     if (master) master.gain.value = on ? 0.6 : 0;
   }
 
-  return { ensure, vroom, click, honk, setEnabled, get enabled() { return enabled; } };
+  return { ensure, vroom, click, honk, beep, swish, fanfare, engineStart, engineSet, engineStop, setEnabled, get enabled() { return enabled; } };
 })();
