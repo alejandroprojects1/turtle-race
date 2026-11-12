@@ -1107,3 +1107,9 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   .hud-time { min-width: 72px; }
   .hud-score small { display: none; }
 }
+
+/* ---------- Vidas ---------- */
+.hud-lives { gap: 3px; padding: 0 10px; }
+.hud-lives svg { width: 20px; height: 20px; fill: #ff4d5e; filter: drop-shadow(0 0 5px rgba(255, 77, 94, .7)); transition: fill .2s, transform .2s; }
+.hud-lives svg.off { fill: rgba(255, 255, 255, .16); filter: none; transform: scale(.82); }
+.hud-lives.hurt { animation: shakeX .4s; }

@@ -24,7 +24,8 @@ const Game = (() => {
   const MAX_SPEED = 14;
   const START_TIME = 60;         // segundos no começo da corrida
   const CLOCK_BONUS = 5;         // segundos que o relógio dá
-  const HIT_PENALTY = 3;         // segundos perdidos numa batida
+  const HIT_PENALTY = 3;         // segundos perdidos ao errar uma pergunta
+  const LIVES = 3;               // batidas que o kart aguenta
   const RIVALS = [
     { body: '#2f7de1', bodyDark: '#174a94', bodyLight: '#6fb0ff', helmet: ['#8fc4ff', '#2f7de1', '#174a94'], scarf: ['#ffc83d', '#ffe08a'], number: '2' },
     { body: '#f2b01e', bodyDark: '#a87200', bodyLight: '#ffd96b', helmet: ['#ffe9a0', '#f2b01e', '#a87200'], scarf: ['#2f7de1', '#6fb0ff'], number: '3' },
@@ -61,7 +62,7 @@ const Game = (() => {
     inv: 0, shake: 0, ents: [], popups: [], prevDist: 0,
     nextRow: 0, nextClock: 0, nextShield: 0, nextFlag: 0, streak: 0,
     turbo: 0, skyFade: 0, skyFrom: null, lastPit: '',
-    turboFill: 0, qTotal: 0, qFirst: 0,
+    turboFill: 0, qTotal: 0, qFirst: 0, lives: LIVES,
   };
   let raf = 0, last = 0;
 
@@ -653,8 +654,10 @@ const Game = (() => {
       st.lane += dir;
       popup('Escorregou! -1s', '#c9a6ff'); Sound.slip();
     } else {
-      st.time -= HIT_PENALTY; st.inv = 1.5; st.shake = 1; st.speed *= 0.4;
-      popup(`-${HIT_PENALTY}s`, '#ff5a5f'); Sound.crash();
+      // batida: perde uma vida
+      st.lives--; st.inv = 1.8; st.shake = 1; st.speed *= 0.4;
+      popup(st.lives > 0 ? '-1 vida' : 'Sem vidas!', '#ff5a5f'); Sound.crash();
+      $('hud-lives').classList.remove('hurt'); void $('hud-lives').offsetWidth; $('hud-lives').classList.add('hurt');
     }
     if (navigator.vibrate) navigator.vibrate(120);
   }
@@ -798,7 +801,7 @@ const Game = (() => {
 
   function gameOver() {
     st.mode = 'over';
-    st.time = 0;
+    $('over-title').textContent = st.lives <= 0 ? 'Acabaram as vidas!' : 'Fim do tempo!';
     Sound.engineStop(); Sound.gameOver();
     let save = {};
     try { save = JSON.parse(localStorage.getItem('tr-save') || '{}'); } catch (e) { /* sem storage */ }
@@ -852,6 +855,7 @@ const Game = (() => {
     if (st.mode === 'running') {
       st.time -= dt;
       updateEntities(dt, target);
+      if (st.lives <= 0) { hudUpdate(); draw(); gameOver(); return; }
       if (st.time <= 0) { st.time = 0; hudUpdate(); draw(); gameOver(); return; }
       if (st.pendingQuiz) { st.pendingQuiz = false; hudUpdate(); draw(); openQuiz(); return; }
       if (st.pendingPit) { st.pendingPit = false; hudUpdate(); draw(); openPit(); return; }
@@ -900,6 +904,7 @@ const Game = (() => {
     }
     hud.stars.textContent = st.stars;
     hud.score.textContent = st.score;
+    $('hud-lives').querySelectorAll('svg').forEach((h, i) => h.classList.toggle('off', i >= st.lives));
     const pips = hud.turbo.querySelectorAll('i');
     pips.forEach((pip, i) => pip.classList.toggle('on', st.turbo > 0 ? st.turbo > i * 2 : i < st.turboFill));
     hud.turbo.classList.toggle('active', st.turbo > 0);
@@ -972,7 +977,7 @@ const Game = (() => {
       time: START_TIME, score: 0, stars: 0, shield: false, inv: 0, shake: 0,
       ents: [], popups: [], prevDist: 0,
       nextFlag: 30, streak: 0, turbo: 0, skyFade: 0, skyFrom: null, pendingPit: false,
-      turboFill: 0, qTotal: 0, qFirst: 0,
+      turboFill: 0, qTotal: 0, qFirst: 0, lives: LIVES,
       nextRow: 16, nextClock: 45 + Math.random() * 25, nextShield: 110 + Math.random() * 60,
     });
     hud.shield.classList.remove('on');

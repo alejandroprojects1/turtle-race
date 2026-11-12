@@ -42,7 +42,8 @@ A cada volta, a velocidade sobe, os obstáculos ficam mais difíceis e o tema da
 Depois da volta 5 os cenários se repetem, e a velocidade e os obstáculos continuam aumentando.
 
 ### 2.4 Tempo e pontos
-- Começa com um cronômetro; **quando o tempo zera, a corrida acaba**.
+- Começa com um cronômetro e **3 vidas** ❤️❤️❤️. A corrida acaba **quando o tempo zera ou quando as 3 vidas acabam**, e a criança tenta de novo.
+- Cada batida em obstáculo ou rival tira **uma vida** (o escudo e o turbo protegem). Poça de óleo só escorrega e tira 1 segundo. Errar pergunta tira 3 segundos, não vidas.
 - **Volta completa = pontos** (voltas mais altas valem mais).
 - Pontos extras: estrelas, ultrapassar rivais, acertos em sequência.
 
@@ -50,7 +51,7 @@ Depois da volta 5 os cenários se repetem, e a velocidade e os obstáculos conti
 - ⏱️ **Relógio** — tempo extra.
 - ⭐ **Estrela** — pontos.
 - 🛡️ **Casco-escudo** — protege de 1 batida.
-- 🚧 Obstáculos: cones, pedras, poças de óleo (escorrega), buracos. Batida = perde tempo + tremida de tela.
+- 🚧 Obstáculos: cones, pedras, poças de óleo (escorrega), buracos. Batida = perde uma vida + tremida de tela.
 
 ### 2.6 Rivais
 Outros **karts pilotados por tartarugas** de cores diferentes (azul, amarelo, roxo…). Eles trocam de faixa e são obstáculos que se movem. **Ultrapassar = bônus.**
