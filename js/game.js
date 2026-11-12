@@ -37,7 +37,7 @@ const Game = (() => {
 
   // ---------- Estado ----------
   const st = {
-    mode: 'idle',               // idle | countdown | running | paused
+    mode: 'idle',               // idle | countdown | running | paused | quiz | over
     prevMode: 'running',
     dist: 0, speed: 0, lap: 1,
     lane: 1, laneF: 1,
@@ -45,7 +45,7 @@ const Game = (() => {
     particles: [],
     time: START_TIME, score: 0, stars: 0, shield: false,
     inv: 0, shake: 0, ents: [], popups: [], prevDist: 0,
-    nextRow: 0, nextClock: 0, nextShield: 0,
+    nextRow: 0, nextClock: 0, nextShield: 0, nextFlag: 0, streak: 0,
   };
   let raf = 0, last = 0;
 
@@ -267,6 +267,28 @@ const Game = (() => {
     ctx.fillRect(xl, top + bh, xr - xl, 0.05 * sc);
   }
 
+  // Pórtico da bandeira de pergunta: atravessa a pista inteira
+  function drawFlagGate(z) {
+    const y = py(z), sc = ps(z);
+    const xl = px(-1.1, z), xr = px(1.1, z), top = y - 1.45 * sc, bh = 0.42 * sc;
+    // cortina de luz
+    const cg = ctx.createLinearGradient(0, top + bh, 0, y);
+    cg.addColorStop(0, 'rgba(255,214,74,.38)'); cg.addColorStop(1, 'rgba(255,214,74,.06)');
+    ctx.fillStyle = cg; ctx.fillRect(xl, top + bh, xr - xl, y - top - bh);
+    ctx.fillStyle = '#5b3fd6';
+    ctx.fillRect(xl - 0.05 * sc, top, 0.1 * sc, y - top);
+    ctx.fillRect(xr - 0.05 * sc, top, 0.1 * sc, y - top);
+    const bg = ctx.createLinearGradient(xl, 0, xr, 0);
+    bg.addColorStop(0, '#7a4dff'); bg.addColorStop(0.5, '#ffd64a'); bg.addColorStop(1, '#7a4dff');
+    ctx.fillStyle = bg;
+    ctx.beginPath(); ctx.roundRect(xl - 0.08 * sc, top - 0.02 * sc, xr - xl + 0.16 * sc, bh, 0.08 * sc); ctx.fill();
+    if (bh > 9) {
+      ctx.fillStyle = '#2a1466'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.font = `italic 900 ${bh * 0.62}px "Exo 2", sans-serif`;
+      ctx.fillText('?  PERGUNTA  ?', (xl + xr) / 2, top + bh * 0.5);
+    }
+  }
+
   // Lista os objetos visíveis, do mais longe para o mais perto
   function sideObjects() {
     const list = [];
@@ -311,7 +333,8 @@ const Game = (() => {
       const e = o.e, sc = ps(o.z);
       const x = px((e.laneF - (LANES - 1) / 2) * LANE_W, o.z), y = py(o.z);
       ctx.globalAlpha = Math.min(1, (Z_FAR - o.z) / 6);
-      if (e.type === 'rival') {
+      if (e.type === 'flag') drawFlagGate(o.z);
+      else if (e.type === 'rival') {
         ctx.save(); ctx.translate(x, y); ctx.rotate((e.lane - e.laneF) * 0.2);
         drawKartRear(ctx, LANE_W * sc * 0.86, { t: st.t + e.z, speed: 0.6, steer: (e.lane - e.laneF) * 2, ...RIVALS[e.pal] });
         ctx.restore();
@@ -377,6 +400,7 @@ const Game = (() => {
   function spawnRow(z) {
     const lap = Math.floor(z / LAP_LEN) + 1, inLap = z % LAP_LEN;
     if (inLap < 5 || inLap > LAP_LEN - 4) return;              // deixa a chegada livre
+    if (Math.abs(z - st.nextFlag) < 4.5 || st.ents.some((e) => e.type === 'flag' && Math.abs(z - e.z) < 4.5)) return;   // e a bandeira também
     const hasRival = st.ents.some((e) => e.type === 'rival');
     const lanes = [0, 1, 2].sort(() => Math.random() - 0.5);
     const kinds = lap === 1 ? ['cone'] : lap === 2 ? ['cone', 'cone', 'rock', 'oil'] : ['cone', 'rock', 'oil', 'tires'];
@@ -430,8 +454,21 @@ const Game = (() => {
       st.nextRow += Math.max(5.5, 10 - lap * 0.9) * (0.8 + Math.random() * 0.4);
     }
 
+    // bandeira de pergunta
+    if (st.nextFlag < st.dist + Z_FAR) {
+      st.ents.push({ type: 'flag', lane: 1, laneF: 1, z: st.nextFlag });
+      let nf = st.nextFlag + 36 + Math.random() * 12;
+      const inLap = nf % LAP_LEN;
+      if (inLap < 8) nf += 8 - inLap; else if (inLap > LAP_LEN - 8) nf += LAP_LEN - inLap + 8;   // longe da chegada
+      st.nextFlag = nf;
+    }
+
     const zHit = Z_KART;
     st.ents.forEach((e) => {
+      if (e.type === 'flag') {
+        if (e.z - st.dist <= zHit) { e.gone = true; st.pendingQuiz = true; }
+        return;
+      }
       const prev = e.z - st.prevDist;
       if (e.type === 'rival') {
         e.z += target * 0.5 * dt;                               // rival anda mais devagar que o jogador
@@ -466,6 +503,32 @@ const Game = (() => {
       if (rel < 0.7) e.gone = true;
     });
     st.ents = st.ents.filter((e) => !e.gone);
+  }
+
+  // ---------- Bandeira de pergunta ----------
+  function openQuiz() {
+    st.mode = 'quiz';
+    Sound.engineStop(); Sound.flag();
+    Quiz.ask({ level: st.lap, streak: st.streak }, {
+      onWrong() {
+        st.streak = 0;
+        st.time = Math.max(0, st.time - HIT_PENALTY);
+        hudUpdate();
+      },
+      onCorrect(first) {
+        st.streak = first ? st.streak + 1 : 0;
+        st.score += first ? 50 : 20;
+        hudUpdate();
+      },
+      onClose() {
+        if (st.time <= 0) { gameOver(); return; }
+        st.mode = 'running';
+        st.inv = 1.5;                       // um instante de proteção para voltar ao volante
+        last = performance.now();
+        Sound.engineStart();
+        if (st.streak > 1) popup(`${st.streak} acertos seguidos!`, '#ffd24a');
+      },
+    });
   }
 
   function gameOver() {
@@ -514,6 +577,7 @@ const Game = (() => {
       st.time -= dt;
       updateEntities(dt, target);
       if (st.time <= 0) { st.time = 0; hudUpdate(); draw(); gameOver(); return; }
+      if (st.pendingQuiz) { st.pendingQuiz = false; hudUpdate(); draw(); openQuiz(); return; }
     }
     hudUpdate();
     st.laneF += (st.lane - st.laneF) * Math.min(1, dt * 14);
@@ -563,7 +627,7 @@ const Game = (() => {
     raf = requestAnimationFrame(loop);
     const dt = Math.min(0.05, (t - last) / 1000 || 0);
     last = t;
-    if (st.mode === 'paused' || st.mode === 'idle' || st.mode === 'over') return;
+    if (st.mode === 'paused' || st.mode === 'idle' || st.mode === 'over' || st.mode === 'quiz') return;
     update(dt);
     draw();
   }
@@ -625,10 +689,12 @@ const Game = (() => {
       t: 0, countN: 3, countT: 0.75, particles: [],
       time: START_TIME, score: 0, stars: 0, shield: false, inv: 0, shake: 0,
       ents: [], popups: [], prevDist: 0,
+      nextFlag: 30, streak: 0,
       nextRow: 16, nextClock: 45 + Math.random() * 25, nextShield: 110 + Math.random() * 60,
     });
     hud.shield.classList.remove('on');
     hud.over.classList.remove('show');
+    st.pendingQuiz = false;
     hudUpdate();
     hud.lap.textContent = '1';
     hud.pause.classList.remove('show');

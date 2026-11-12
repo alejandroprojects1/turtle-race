@@ -19,6 +19,9 @@ index.html        página do jogo
 css/style.css     visual
 js/audio.js       sons gerados pelo navegador (Web Audio)
 js/fx.js          faíscas de velocidade do fundo
+js/turtle.js      mini interpretador de Python turtle (executa e desenha o código)
+js/questions.js   banco de perguntas
+js/quiz.js        cartão de pergunta
 js/kart.js        desenho do kart visto por trás
 js/items.js       desenho dos obstáculos e itens
 js/game.js        corrida 3D: pista, kart e controles
@@ -31,7 +34,7 @@ docs/GDD.md       documento de design do jogo
 - [x] Parte 1: base e tela inicial
 - [x] Parte 2: pista e controle
 - [x] Parte 3: obstáculos, itens, rivais e tempo
-- [ ] Parte 4: mini interpretador turtle + perguntas
+- [x] Parte 4: mini interpretador turtle + perguntas
 - [ ] Parte 5: exercícios estilo Duolingo e banco de questões
 - [ ] Parte 6: voltas, níveis, cenários e Pit Stop
 - [ ] Parte 7: Modo Treino

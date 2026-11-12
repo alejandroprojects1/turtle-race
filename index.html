@@ -142,6 +142,30 @@
       </div>
     </div>
 
+    <!-- Cartão de pergunta -->
+    <div id="quiz" class="quiz" role="dialog" aria-modal="true" aria-labelledby="quiz-prompt">
+      <div class="quiz-card">
+        <div class="quiz-main">
+          <div class="quiz-head">
+            <span class="quiz-tag"><i></i>Pergunta</span>
+            <span class="quiz-streak" id="quiz-streak"></span>
+          </div>
+          <p id="quiz-prompt" class="quiz-prompt"></p>
+          <div id="quiz-stage" class="quiz-stage">
+            <pre id="quiz-code" class="quiz-code"></pre>
+            <canvas id="quiz-board" class="quiz-board" aria-label="Lousa da tartaruga"></canvas>
+          </div>
+        </div>
+        <div class="quiz-side">
+          <div id="quiz-options" class="quiz-options"></div>
+          <div id="quiz-feedback" class="quiz-feedback" aria-live="polite">
+            <p id="quiz-msg"></p>
+            <button id="quiz-next" class="btn btn-primary"><span class="btn-label"><b>Continuar</b></span><span class="btn-go"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg></span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div id="over-overlay" class="overlay">
       <div class="card">
         <h2>Fim do tempo!</h2>
@@ -163,6 +187,9 @@
   <script src="js/fx.js"></script>
   <script src="js/kart.js"></script>
   <script src="js/items.js"></script>
+  <script src="js/turtle.js"></script>
+  <script src="js/questions.js"></script>
+  <script src="js/quiz.js"></script>
   <script src="js/game.js"></script>
   <script src="js/main.js"></script>
 </body>
