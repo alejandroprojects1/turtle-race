@@ -389,3 +389,24 @@ const PIT_STOPS = [
     explain: 'A tartaruga passa pelos quatro cantos com goto e a forma é pintada no end_fill().',
   },
 ];
+
+// ====================== Aulinhas do Modo Treino ======================
+// Aparecem no começo de cada tema: um texto curto e a tartaruga mostrando o código.
+const LESSONS = [
+  { id: 'aula1a', level: 1, type: 'lesson', prompt: 'A tartaruga desenhista', code: 'forward(100)',
+    text: 'A tartaruga carrega uma caneta: quando ela anda, risca uma linha. forward(100) manda ela andar 100 passos para frente.' },
+  { id: 'aula1b', level: 1, type: 'lesson', prompt: 'Andando de ré', code: 'forward(100)\nbackward(50)',
+    text: 'backward anda para trás, de ré, sem virar. O número entre parênteses é sempre a quantidade de passos.' },
+  { id: 'aula2a', level: 2, type: 'lesson', prompt: 'Virando a tartaruga', code: 'forward(80)\nleft(90)\nforward(80)\nright(90)\nforward(80)',
+    text: 'left gira para a esquerda e right gira para a direita. A tartaruga não sai do lugar, só vira. O número é o ângulo em graus: 90 graus é um canto reto.' },
+  { id: 'aula3a', level: 3, type: 'lesson', prompt: 'Trocando a cor da caneta', code: 'color("red")\nforward(80)\ncolor("blue")\nforward(80)',
+    text: 'color troca a cor da caneta. O nome da cor é em inglês e fica entre aspas: "red" é vermelho, "blue" é azul, "green" é verde.' },
+  { id: 'aula3b', level: 3, type: 'lesson', prompt: 'Indo direto a um ponto', code: 'goto(100, 50)\ngoto(0, 0)',
+    text: 'goto(x, y) leva a tartaruga em linha reta até um ponto. O x é para os lados e o y é para cima. O ponto (0, 0) é o centro, onde ela começa.' },
+  { id: 'aula4a', level: 4, type: 'lesson', prompt: 'Pintando por dentro', code: 'color("orange")\nbegin_fill()\n' + SQUARE + '\nend_fill()',
+    text: 'Tudo o que for desenhado entre begin_fill() e end_fill() fica pintado por dentro, com a cor da caneta.' },
+  { id: 'aula5a', level: 5, type: 'lesson', prompt: 'O quadrado', code: SQUARE,
+    text: 'O quadrado tem 4 lados iguais. A tartaruga anda um lado, gira 90 graus e repete.' },
+  { id: 'aula5b', level: 5, type: 'lesson', prompt: 'O triângulo', code: TRIANGLE,
+    text: 'O triângulo de lados iguais tem 3 lados. Em cada ponta a tartaruga gira 120 graus.' },
+];

@@ -10,10 +10,11 @@ const Quiz = (() => {
   const el = {
     root: $('quiz'), prompt: $('quiz-prompt'), stage: $('quiz-stage'), code: $('quiz-code'), board: $('quiz-board'),
     options: $('quiz-options'), feedback: $('quiz-feedback'), msg: $('quiz-msg'), next: $('quiz-next'), streak: $('quiz-streak'),
-    work: $('quiz-work'), tray: $('quiz-tray'), bank: $('quiz-bank'), check: $('quiz-check'), tag: $('quiz-tag-text'),
+    work: $('quiz-work'), tray: $('quiz-tray'), bank: $('quiz-bank'), check: $('quiz-check'), tag: $('quiz-tag-text'), exit: $('quiz-exit'), progress: $('quiz-progress'), nextLabel: $('quiz-next').querySelector('b'),
   };
   const MAX_TRIES = 2;            // em "montar" e "ordenar": depois disso a resposta é mostrada
   let cur = null, cb = null, anim = 0, seen = [];
+  document.body.appendChild(el.root);          // o cartão vale para a corrida e para o treino
 
   const shuffle = (arr) => arr.map((v) => [Math.random(), v]).sort((a, b) => a[0] - b[0]).map((p) => p[1]);
   const EMPTY = { ops: [], total: 0, bounds: { x0: -60, y0: -60, x1: 60, y1: 60 } };
@@ -222,7 +223,12 @@ const Quiz = (() => {
     cur = { q, type, tries: 0, done: false };
 
     el.root.classList.toggle('pit', !!info.pit);
-    el.tag.textContent = info.pit ? 'Pit Stop' : 'Pergunta';
+    el.root.classList.toggle('train', !!info.train);
+    el.tag.textContent = info.tag || (info.pit ? 'Pit Stop' : 'Pergunta');
+    el.exit.style.display = info.train ? '' : 'none';
+    el.progress.style.display = info.progress != null ? '' : 'none';
+    el.progress.firstElementChild.style.width = Math.round((info.progress || 0) * 100) + '%';
+    el.nextLabel.textContent = type === 'lesson' ? 'Entendi!' : 'Continuar';
     el.streak.textContent = info.streak > 1 ? `${info.streak} acertos seguidos` : '';
     el.streak.classList.toggle('show', info.streak > 1);
     el.prompt.textContent = q.prompt;
@@ -249,7 +255,13 @@ const Quiz = (() => {
     if (type === 'choice') setupChoice(q);
     else if (type === 'blank') setupBlank(q);
     else if (type === 'bug') setupBug(q);
-    else setupBlocks(q);
+    else if (type === 'lesson') {
+      // aulinha: só ler, ver a tartaruga desenhar e continuar
+      cur.done = true;
+      el.feedback.className = 'quiz-feedback show lesson';
+      el.msg.textContent = q.text;
+      requestAnimationFrame(() => { if (cur && cur.q === q) play(q.code); });
+    } else setupBlocks(q);
   }
 
   // A tartaruga desenha o código na lousa, destacando a linha que está rodando
@@ -282,6 +294,15 @@ const Quiz = (() => {
   }
 
   el.next.addEventListener('click', close);
+  el.exit.addEventListener('click', () => {
+    if (!cur) return;
+    cancelAnimationFrame(anim);
+    el.root.classList.remove('show');
+    const done = cb.onExit;
+    cur = null;
+    Sound.click();
+    if (done) done();
+  });
   window.addEventListener('keydown', (e) => {
     if (!el.root.classList.contains('show') || !cur) return;
     if (e.key === 'Enter') {

@@ -148,7 +148,9 @@
         <div class="quiz-main">
           <div class="quiz-head">
             <span class="quiz-tag"><i></i><span id="quiz-tag-text">Pergunta</span></span>
+            <span class="quiz-progress" id="quiz-progress"><i></i></span>
             <span class="quiz-streak" id="quiz-streak"></span>
+            <button id="quiz-exit" class="quiz-exit" aria-label="Sair do treino"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
           </div>
           <p id="quiz-prompt" class="quiz-prompt"></p>
           <div id="quiz-stage" class="quiz-stage">
@@ -197,6 +199,30 @@
     </div>
   </section>
 
+  <!-- Modo Treino -->
+  <section id="train-screen" class="screen train-screen">
+    <header class="train-top">
+      <button id="train-back" class="icon-btn" aria-label="Voltar"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <h2>Treino</h2>
+      <span class="chip" title="Estrelas"><svg viewBox="0 0 24 24" class="ico gold"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9z"/></svg><span id="train-stars">0</span></span>
+    </header>
+    <p class="train-sub">Escolha um tema. Aqui não tem relógio: pratique com calma!</p>
+    <div id="train-list" class="train-list"></div>
+
+    <div id="train-done" class="overlay">
+      <div class="card">
+        <h2>Treino concluído!</h2>
+        <p class="card-sub" id="done-msg"></p>
+        <div class="stats two">
+          <div><small>Acertos</small><b id="done-first">0</b></div>
+          <div><small>Estrelas</small><b id="done-stars">+0</b></div>
+        </div>
+        <button id="done-again" class="btn btn-primary"><span class="btn-label"><b>Treinar de novo</b></span><span class="btn-go"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg></span></button>
+        <button id="done-menu" class="btn btn-glass"><span class="btn-label"><b>Outros temas</b></span></button>
+      </div>
+    </div>
+  </section>
+
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script src="js/audio.js"></script>
@@ -207,6 +233,7 @@
   <script src="js/questions.js"></script>
   <script src="js/quiz.js"></script>
   <script src="js/game.js"></script>
+  <script src="js/train.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

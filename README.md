@@ -22,6 +22,7 @@ js/fx.js          faíscas de velocidade do fundo
 js/turtle.js      mini interpretador de Python turtle (executa e desenha o código)
 js/questions.js   banco de perguntas
 js/quiz.js        cartão de pergunta
+js/train.js       Modo Treino (temas, aulinhas e revisão)
 js/kart.js        desenho do kart visto por trás
 js/items.js       desenho dos obstáculos e itens
 js/game.js        corrida 3D: pista, kart e controles
@@ -37,5 +38,5 @@ docs/GDD.md       documento de design do jogo
 - [x] Parte 4: mini interpretador turtle + perguntas
 - [x] Parte 5: exercícios estilo Duolingo e banco de questões
 - [x] Parte 6: voltas, níveis, cenários e Pit Stop
-- [ ] Parte 7: Modo Treino
+- [x] Parte 7: Modo Treino
 - [ ] Parte 8: turbo, personalização, resultado e acabamento

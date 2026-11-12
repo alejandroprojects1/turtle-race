@@ -14,7 +14,7 @@ Jogo educativo para o **5º ano** aprender os conceitos básicos de **Python tur
 | Modo | Descrição |
 |---|---|
 | 🏁 **Corrida** | Modo principal: voltas na pista, obstáculos, rivais, bandeiras de pergunta e Pit Stop. |
-| 📚 **Treino** | Pratica o conteúdo sem corrida e sem pressão de tempo, escolhendo o tema. Mostra explicação a cada resposta. As perguntas erradas na Corrida aparecem aqui para revisão. |
+| 📚 **Treino** | Pratica o conteúdo sem corrida e sem relógio, escolhendo um dos 5 temas. Cada tema começa com uma aulinha (texto curto e a tartaruga desenhando), passa por todos os exercícios e termina com os desafios de montar programa. Quem erra revê a pergunta no fim. As perguntas erradas na Corrida aparecem no cartão **Revisão**. Cada acerto vale uma estrela. |
 
 ---
 

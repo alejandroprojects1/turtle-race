@@ -108,8 +108,9 @@
         Sound.ensure();
         Game.start();
       } else {
-        Sound.honk();
-        showToast('📚 O Modo Treino chega em breve');
+        Sound.ensure();
+        Sound.click();
+        Train.open();
       }
     });
   });
