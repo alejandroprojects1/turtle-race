@@ -57,57 +57,64 @@ const Game = (() => {
     return x - Math.floor(x);
   }
 
-  // ---------- Céu: praia ao pôr do sol ----------
+  // ---------- Céu e paisagem ao fundo ----------
+  function cloud(x, y, r) {
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.arc(x + r * 1.1, y + r * 0.25, r * 0.75, 0, Math.PI * 2);
+    ctx.arc(x - r * 1.1, y + r * 0.3, r * 0.7, 0, Math.PI * 2);
+    ctx.arc(x + r * 0.45, y - r * 0.45, r * 0.75, 0, Math.PI * 2);
+    ctx.roundRect(x - r * 1.8, y + r * 0.3, r * 3.65, r * 0.7, r * 0.35);
+    ctx.fill();
+  }
+  function ridge(base, amp, f1, f2, ph, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath(); ctx.moveTo(0, horizon + 1);
+    for (let x = 0; x <= W + 6; x += 6) {
+      const k = x / W;
+      const y = (Math.sin(k * f1 + ph) * 0.55 + Math.sin(k * f2 + ph * 2.3) * 0.3 + 0.6) * amp;
+      ctx.lineTo(x, base - Math.max(0, y));
+    }
+    ctx.lineTo(W, horizon + 1); ctx.closePath(); ctx.fill();
+  }
   function drawSky() {
     const g = ctx.createLinearGradient(0, 0, 0, horizon);
-    g.addColorStop(0, '#170a3a');
-    g.addColorStop(0.5, '#6a1b6e');
-    g.addColorStop(0.82, '#ff5e7e');
-    g.addColorStop(1, '#ffb36b');
+    g.addColorStop(0, '#2f8fe6');
+    g.addColorStop(0.6, '#7cc4f5');
+    g.addColorStop(1, '#d6efff');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, horizon + 1);
 
-    for (let i = 0; i < 50; i++) {
-      const x = rnd(i, 1) * W, y = rnd(i, 2) * horizon * 0.6;
-      const a = 0.25 + 0.5 * Math.abs(Math.sin(st.t * (0.6 + rnd(i, 3)) + i));
-      ctx.fillStyle = `rgba(255,255,255,${a})`;
-      ctx.fillRect(x, y, 1.6, 1.6);
+    // sol
+    const sx = W * 0.8, sy = horizon * 0.3, sr = Math.min(W, H) * 0.06;
+    const sg = ctx.createRadialGradient(sx, sy, 0, sx, sy, sr * 5);
+    sg.addColorStop(0, 'rgba(255,255,235,1)'); sg.addColorStop(0.18, 'rgba(255,250,200,.9)');
+    sg.addColorStop(0.22, 'rgba(255,245,190,.35)'); sg.addColorStop(1, 'rgba(255,245,190,0)');
+    ctx.fillStyle = sg; ctx.fillRect(0, 0, W, horizon);
+
+    // nuvens andando devagar
+    ctx.fillStyle = '#ffffff';
+    for (let i = 0; i < 6; i++) {
+      const r = (0.035 + rnd(i, 21) * 0.035) * Math.max(W, 420);
+      const span = W + r * 8;
+      const x = ((rnd(i, 22) * span + st.t * (4 + rnd(i, 23) * 6)) % span) - r * 4;
+      cloud(x, horizon * (0.12 + rnd(i, 24) * 0.5), r);
     }
 
-    // sol listrado no fim da pista
-    const seaH = Math.max(10, roadH * 0.045), seaTop = horizon - seaH;
-    const r = Math.min(W * 0.2, horizon * 0.42), sy = seaTop - r * 0.3;
-    ctx.save();
-    ctx.beginPath(); ctx.rect(0, 0, W, seaTop); ctx.clip();
-    const sg = ctx.createLinearGradient(0, sy - r, 0, sy + r);
-    sg.addColorStop(0, '#fff3a6'); sg.addColorStop(0.5, '#ffb347'); sg.addColorStop(1, '#ff4d7a');
-    ctx.shadowColor = 'rgba(255,150,90,.9)'; ctx.shadowBlur = r * 0.6;
-    ctx.fillStyle = sg;
-    ctx.beginPath(); ctx.arc(cx, sy, r, 0, Math.PI * 2); ctx.fill();
-    ctx.shadowBlur = 0;
-    ctx.fillStyle = 'rgba(160,45,110,.6)';
-    for (let i = 0; i < 5; i++) ctx.fillRect(cx - r, sy + r * (0.1 + i * 0.17), r * 2, r * (0.025 + i * 0.018));
-    ctx.restore();
-
-    // ilhas
-    ctx.fillStyle = '#4a1a5e';
-    ctx.beginPath(); ctx.moveTo(0, seaTop);
-    for (let x = 0; x <= W; x += 8) {
-      const k = x / W * 9;
-      const y = Math.max(0, Math.sin(k * 1.3 + 1) * 0.5 + Math.sin(k * 2.9) * 0.3 - 0.15) * Math.abs(x - cx) / W * 2.2;
-      ctx.lineTo(x, seaTop - y * seaH * 1.6);
+    // montanhas e morros, cada vez mais verdes de perto
+    const a = roadH * 0.16;
+    ridge(horizon, a * 1.25, 5.2, 11.5, 0.7, '#8fb4d9');
+    ridge(horizon, a * 0.85, 7.4, 15.1, 2.1, '#6fa58e');
+    ridge(horizon, a * 0.5, 10.3, 23.7, 4.2, '#4f9257');
+    // linha de árvores ao longe
+    ctx.fillStyle = '#3b7d45';
+    ctx.beginPath(); ctx.moveTo(0, horizon + 1);
+    const tw = Math.max(5, W * 0.012);
+    for (let x = 0, i = 0; x <= W + tw; x += tw, i++) {
+      ctx.lineTo(x, horizon - a * (0.1 + rnd(i, 31) * 0.14));
+      ctx.lineTo(x + tw * 0.5, horizon - a * (0.2 + rnd(i, 32) * 0.16));
     }
-    ctx.lineTo(W, seaTop); ctx.closePath(); ctx.fill();
-
-    // mar
-    const mg = ctx.createLinearGradient(0, seaTop, 0, horizon);
-    mg.addColorStop(0, '#ff7a8a'); mg.addColorStop(1, '#4a2390');
-    ctx.fillStyle = mg; ctx.fillRect(0, seaTop, W, seaH + 1);
-    ctx.fillStyle = 'rgba(255,230,170,.75)';
-    for (let i = 0; i < 4; i++) {
-      const w = r * (0.5 + i * 0.45) * (0.85 + 0.15 * Math.sin(st.t * 2 + i));
-      ctx.fillRect(cx - w / 2, seaTop + (i + 0.5) * seaH / 4, w, Math.max(1, seaH * 0.07));
-    }
+    ctx.lineTo(W, horizon + 1); ctx.closePath(); ctx.fill();
   }
 
   // ---------- Chão e pista ----------
@@ -122,10 +129,10 @@ const Game = (() => {
   function drawGround() {
     const kFar = Math.ceil((st.dist + Z_FAR) / SEG);
     const kNear = Math.floor((st.dist + 0.8) / SEG);
-    // areia (faixas claras e escuras)
+    // grama (faixas claras e escuras, como grama aparada)
     for (let k = kFar; k >= kNear; k--) {
       const y1 = py(Math.max(0.8, k * SEG - st.dist)), y2 = py((k + 1) * SEG - st.dist);
-      ctx.fillStyle = (Math.floor(k / 2) % 2 + 2) % 2 ? '#6b3566' : '#5f2e5d';
+      ctx.fillStyle = (Math.floor(k / 2) % 2 + 2) % 2 ? '#58b548' : '#4fa942';
       ctx.fillRect(0, y2 - 0.5, W, y1 - y2 + 1);
     }
     for (let k = kFar; k >= kNear; k--) {
@@ -135,20 +142,43 @@ const Game = (() => {
       const s1 = ps(z1), s2 = ps(z2);
       const alt = ((k % 2) + 2) % 2, alt4 = (Math.floor(k / 2) % 2 + 2) % 2;
 
+      // acostamento de terra
+      quad(cx, y1, s1 * 1.24, cx, y2, s2 * 1.24, alt4 ? '#a58f6a' : '#9c8762');
       // zebra
-      quad(cx, y1, s1 * 1.13, cx, y2, s2 * 1.13, alt ? '#ff3b4a' : '#f4f6ff');
+      quad(cx, y1, s1 * 1.13, cx, y2, s2 * 1.13, alt ? '#e63946' : '#f4f6f8');
       // asfalto
-      quad(cx, y1, s1, cx, y2, s2, alt4 ? '#2b2444' : '#27203e');
-      // linha da borda
-      quad(cx - s1 * 0.97, y1, s1 * 0.012, cx - s2 * 0.97, y2, s2 * 0.012, 'rgba(255,255,255,.5)');
-      quad(cx + s1 * 0.97, y1, s1 * 0.012, cx + s2 * 0.97, y2, s2 * 0.012, 'rgba(255,255,255,.5)');
+      quad(cx, y1, s1, cx, y2, s2, alt4 ? '#575c66' : '#535862');
+      // remendos e manchas no asfalto
+      if (rnd(k, 41) < 0.12) {
+        const lx = -0.8 + rnd(k, 42) * 1.6, pw = 0.08 + rnd(k, 43) * 0.14;
+        quad(cx + lx * s1, y1, s1 * pw, cx + lx * s2, y2, s2 * pw, 'rgba(25,27,33,.22)');
+      }
+      // linhas brancas das bordas
+      quad(cx - s1 * 0.96, y1, s1 * 0.014, cx - s2 * 0.96, y2, s2 * 0.014, 'rgba(255,255,255,.9)');
+      quad(cx + s1 * 0.96, y1, s1 * 0.014, cx + s2 * 0.96, y2, s2 * 0.014, 'rgba(255,255,255,.9)');
       // faixas tracejadas
       if (alt4 && alt) {
         for (let i = 1; i < LANES; i++) {
           const lx = -1 + i * LANE_W;
-          quad(cx + lx * s1, y1, s1 * 0.016, cx + lx * s2, y2, s2 * 0.016, 'rgba(255,255,255,.75)');
+          quad(cx + lx * s1, y1, s1 * 0.014, cx + lx * s2, y2, s2 * 0.014, 'rgba(255,255,255,.85)');
         }
       }
+      // guard-rail dos dois lados
+      [-1, 1].forEach((sd) => {
+        const xa = cx + sd * 1.36 * s1, xb = cx + sd * 1.36 * s2;
+        ctx.fillStyle = alt ? '#c9ced6' : '#b4bac4';
+        ctx.beginPath();
+        ctx.moveTo(xa, y1 - 0.2 * s1); ctx.lineTo(xb, y2 - 0.2 * s2);
+        ctx.lineTo(xb, y2 - 0.09 * s2); ctx.lineTo(xa, y1 - 0.09 * s1);
+        ctx.closePath(); ctx.fill();
+        if (alt) { ctx.fillStyle = '#7d838e'; ctx.fillRect(xb - 0.012 * s2, y2 - 0.2 * s2, 0.024 * s2, 0.2 * s2); }
+      });
+    }
+
+    // marcas de pneu no meio de cada faixa (do horizonte até a câmera)
+    for (let i = 0; i < LANES; i++) {
+      const lx = -1 + (i + 0.5) * LANE_W;
+      [-0.13, 0.13].forEach((o) => quad(px(lx + o, 0.8), py(0.8), ps(0.8) * 0.035, px(lx + o, Z_FAR), py(Z_FAR), ps(Z_FAR) * 0.035, 'rgba(30,32,38,.15)'));
     }
 
     // linha de chegada
@@ -166,30 +196,43 @@ const Game = (() => {
     }
 
     // névoa no horizonte
-    const fg = ctx.createLinearGradient(0, horizon, 0, horizon + roadH * 0.22);
-    fg.addColorStop(0, 'rgba(255,150,120,.75)'); fg.addColorStop(1, 'rgba(255,150,120,0)');
-    ctx.fillStyle = fg; ctx.fillRect(0, horizon, W, roadH * 0.22);
+    const fg = ctx.createLinearGradient(0, horizon, 0, horizon + roadH * 0.16);
+    fg.addColorStop(0, 'rgba(214,239,255,.85)'); fg.addColorStop(1, 'rgba(214,239,255,0)');
+    ctx.fillStyle = fg; ctx.fillRect(0, horizon, W, roadH * 0.16);
   }
 
   // ---------- Objetos na beira da pista ----------
-  function drawPalm(x, base, h, lean, alpha) {
+  const GREENS = [['#2f8a3a', '#4fb14c', '#236b2d'], ['#3a9a3f', '#66c257', '#2a7732'], ['#277a45', '#45a85e', '#1c5c33']];
+  function drawTree(x, base, h, kind, tone, alpha) {
+    const [mid, light, dark] = GREENS[tone];
     ctx.globalAlpha = alpha;
-    ctx.strokeStyle = '#2a1040'; ctx.fillStyle = '#231038';
-    ctx.lineCap = 'round';
-    const tx = x + lean * h * 0.25, ty = base - h;
-    ctx.lineWidth = Math.max(1.5, h * 0.05);
-    ctx.beginPath(); ctx.moveTo(x, base);
-    ctx.quadraticCurveTo(x + lean * h * 0.05, base - h * 0.55, tx, ty); ctx.stroke();
-    const sway = Math.sin(st.t * 1.5 + x * 0.01) * 0.06;
-    for (let i = 0; i < 7; i++) {
-      const a = -Math.PI + (i / 6) * Math.PI + sway;
-      const len = h * (0.42 + 0.08 * Math.sin(i * 2.1));
-      const ex = tx + Math.cos(a) * len, ey = ty + Math.sin(a) * len * 0.55 + len * 0.3;
-      const mx = tx + Math.cos(a) * len * 0.55, my = ty + Math.sin(a) * len * 0.6 - len * 0.12;
-      ctx.beginPath(); ctx.moveTo(tx, ty);
-      ctx.quadraticCurveTo(mx, my, ex, ey);
-      ctx.quadraticCurveTo(mx, my + len * 0.2, tx, ty);
-      ctx.fill();
+    // sombra no chão
+    ctx.fillStyle = 'rgba(0,40,10,.22)';
+    ctx.beginPath(); ctx.ellipse(x + h * 0.12, base, h * 0.32, h * 0.05, 0, 0, Math.PI * 2); ctx.fill();
+    // tronco
+    const tw = h * 0.075;
+    ctx.fillStyle = '#6b4a2b';
+    ctx.fillRect(x - tw / 2, base - h * 0.42, tw, h * 0.42);
+    ctx.fillStyle = 'rgba(0,0,0,.25)';
+    ctx.fillRect(x, base - h * 0.42, tw / 2, h * 0.42);
+    if (kind === 0) {
+      // copa redonda
+      const cy = base - h * 0.66, r = h * 0.3;
+      ctx.fillStyle = dark;
+      ctx.beginPath(); ctx.arc(x + r * 0.35, cy + r * 0.3, r * 0.8, 0, Math.PI * 2); ctx.arc(x - r * 0.5, cy + r * 0.35, r * 0.7, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = mid;
+      ctx.beginPath(); ctx.arc(x, cy, r, 0, Math.PI * 2); ctx.arc(x - r * 0.6, cy + r * 0.25, r * 0.62, 0, Math.PI * 2); ctx.arc(x + r * 0.62, cy + r * 0.2, r * 0.6, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = light;
+      ctx.beginPath(); ctx.arc(x - r * 0.28, cy - r * 0.3, r * 0.52, 0, Math.PI * 2); ctx.arc(x + r * 0.3, cy - r * 0.05, r * 0.32, 0, Math.PI * 2); ctx.fill();
+    } else {
+      // pinheiro
+      for (let i = 0; i < 3; i++) {
+        const top = base - h * (1 - i * 0.2), bot = base - h * (0.52 - i * 0.14), hw = h * (0.17 + i * 0.07);
+        ctx.fillStyle = mid;
+        ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x + hw, bot); ctx.lineTo(x - hw, bot); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = dark;
+        ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x + hw, bot); ctx.lineTo(x, bot); ctx.closePath(); ctx.fill();
+      }
     }
     ctx.globalAlpha = 1;
   }
@@ -213,14 +256,24 @@ const Game = (() => {
   // Lista os objetos visíveis, do mais longe para o mais perto
   function sideObjects() {
     const list = [];
-    const sp = 2.2;
+    const sp = 1.5;
     const k0 = Math.floor((st.dist + 0.9) / sp), k1 = Math.ceil((st.dist + Z_FAR) / sp);
     for (let k = k1; k >= k0; k--) {
-      const z = k * sp - st.dist;
-      if (z < 0.9) continue;
       [-1, 1].forEach((sd) => {
-        if (rnd(k, sd + 5) < 0.3) return;
-        list.push({ type: 'palm', z, x: sd * (1.5 + rnd(k, sd + 7) * 1.4), h: 1.5 + rnd(k, sd + 9) * 0.9, lean: rnd(k, sd + 11) - 0.5 });
+        // duas fileiras de árvores de cada lado
+        for (let row = 0; row < 2; row++) {
+          const id = k * 4 + (sd > 0 ? 2 : 0) + row;
+          if (rnd(id, 5) < 0.22) continue;
+          const z = k * sp - st.dist + rnd(id, 6) * sp * 0.7;
+          if (z < 0.9 || z > Z_FAR) continue;
+          list.push({
+            type: 'tree', z,
+            x: sd * (1.75 + row * 1.3 + rnd(id, 7) * 1.1),
+            h: 1.3 + rnd(id, 9) * 1.1 + row * 0.4,
+            kind: rnd(id, 11) < 0.68 ? 0 : 1,
+            tone: Math.floor(rnd(id, 13) * 3),
+          });
+        }
       });
     }
     const lapK = Math.floor(st.dist / LAP_LEN);
@@ -232,9 +285,9 @@ const Game = (() => {
   }
 
   function drawObject(o) {
-    if (o.type === 'palm') {
-      const alpha = Math.min(1, (Z_FAR - o.z) / 10);
-      drawPalm(px(o.x, o.z), py(o.z), o.h * ps(o.z), o.lean, alpha);
+    if (o.type === 'tree') {
+      const alpha = Math.min(1, (Z_FAR - o.z) / 8);
+      drawTree(px(o.x, o.z), py(o.z), o.h * ps(o.z), o.kind, o.tone, alpha);
     } else if (o.type === 'gantry') drawGantry(o.z);
   }
 
@@ -250,7 +303,7 @@ const Game = (() => {
 
     // poeira
     st.particles.forEach((p) => {
-      ctx.fillStyle = `rgba(255,215,200,${p.a * 0.45})`;
+      ctx.fillStyle = `rgba(225,225,225,${p.a * 0.4})`;
       ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
     });
 
