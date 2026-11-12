@@ -91,6 +91,7 @@
             <svg class="btn-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
           </button>
           <div class="menu-row">
+            <button class="btn btn-glass btn-small" data-action="ranking"><span class="btn-label"><b>Ranking</b></span></button>
             <button class="btn btn-glass btn-small" data-action="garage"><span class="btn-label"><b>Garagem</b></span></button>
             <button class="btn btn-glass btn-small" data-action="help"><span class="btn-label"><b>Como jogar</b></span></button>
           </div>
@@ -201,6 +202,7 @@
           <div><small>Estrelas</small><b id="over-stars">0</b></div>
           <div><small>Acertos</small><b id="over-hits">0</b></div>
         </div>
+        <div id="over-rank" class="over-rank" aria-live="polite"></div>
         <button id="btn-again" class="btn btn-primary"><span class="btn-label"><b>Jogar de novo</b></span><span class="btn-go"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg></span></button>
         <button id="btn-menu" class="btn btn-glass"><span class="btn-label"><b>Menu</b></span></button>
       </div>
@@ -253,6 +255,37 @@
     </div>
   </section>
 
+  <!-- Ranking -->
+  <section id="rank-screen" class="screen train-screen">
+    <header class="train-top">
+      <button id="rank-back" class="icon-btn" aria-label="Voltar"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <h2>Ranking</h2>
+      <button id="rank-me" class="chip rank-me">Escolher meu nome</button>
+    </header>
+    <div id="rank-tabs" class="rank-tabs" role="tablist">
+      <button data-turma="5A">Turma 5A</button>
+      <button data-turma="5B">Turma 5B</button>
+    </div>
+    <p id="rank-msg" class="train-sub" aria-live="polite"></p>
+    <ol id="rank-list" class="rank-list"></ol>
+  </section>
+
+  <!-- Quem é você? -->
+  <div id="profile-overlay" class="overlay overlay-fixed">
+    <div class="card">
+      <h2>Quem é você?</h2>
+      <p class="card-sub">Seu nome aparece no ranking da turma.</p>
+      <input id="player-name" class="field" type="text" maxlength="40" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="Nome e sobrenome" aria-label="Nome e sobrenome">
+      <div id="player-turmas" class="rank-tabs">
+        <button data-turma="5A">Turma 5A</button>
+        <button data-turma="5B">Turma 5B</button>
+      </div>
+      <p id="player-error" class="field-error" aria-live="polite"></p>
+      <button id="player-save" class="btn btn-primary"><span class="btn-label"><b>Salvar</b></span><span class="btn-go"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg></span></button>
+      <button id="player-skip" class="btn btn-glass"><span class="btn-label"><b>Agora não</b></span></button>
+    </div>
+  </div>
+
   <!-- Como jogar -->
   <div id="help-overlay" class="overlay overlay-fixed">
     <div class="card help">
@@ -271,6 +304,7 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
+  <script src="js/config.js"></script>
   <script src="js/audio.js"></script>
   <script src="js/fx.js"></script>
   <script src="js/kart.js"></script>
@@ -280,6 +314,7 @@
   <script src="js/quiz.js"></script>
   <script src="js/game.js"></script>
   <script src="js/extras.js"></script>
+  <script src="js/ranking.js"></script>
   <script src="js/train.js"></script>
   <script src="js/main.js"></script>
 </body>

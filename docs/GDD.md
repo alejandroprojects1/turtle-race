@@ -98,6 +98,11 @@ As estrelas ganhas na corrida e no treino liberam **8 pinturas de kart** (vermel
 
 ---
 
+## 4.1 Ranking das turmas
+Ranking online (Supabase) das turmas **5A** e **5B**, com a **melhor pontuação** de cada aluno na corrida. O aluno informa nome completo e turma uma vez; o ranking completo fica num botão da tela inicial e o pódio da turma aparece no fim de cada corrida.
+
+---
+
 ## 5. Som 🔊
 - **Barulho de motor amigável**: um "vrum" suave e fofinho, gerado pelo próprio navegador (Web Audio). O tom sobe com a velocidade e no turbo.
 - Efeitos curtos: acerto ✅, erro (suave, sem susto), pegar item, batida "boing", buzina de largada, confete na chegada.

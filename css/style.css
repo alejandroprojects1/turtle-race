@@ -1113,3 +1113,49 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .hud-lives svg { width: 20px; height: 20px; fill: #ff4d5e; filter: drop-shadow(0 0 5px rgba(255, 77, 94, .7)); transition: fill .2s, transform .2s; }
 .hud-lives svg.off { fill: rgba(255, 255, 255, .16); filter: none; transform: scale(.82); }
 .hud-lives.hurt { animation: shakeX .4s; }
+
+/* ==================== Ranking ==================== */
+.rank-me { max-width: 46%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; cursor: pointer; }
+.rank-tabs { width: min(100%, 620px); display: flex; gap: 8px; margin-top: 12px; }
+.rank-tabs button { flex: 1; min-height: 44px; border-radius: 14px; background: rgba(255, 255, 255, .06); border: 2px solid var(--glass-brd); font-family: var(--font-title); font-style: italic; font-weight: 900; font-size: 17px; text-transform: uppercase; color: var(--muted); }
+.rank-tabs button.on { background: linear-gradient(100deg, var(--red), var(--red-2)); border-color: transparent; color: #fff; box-shadow: 0 8px 22px -10px rgba(255, 45, 61, .9); }
+.card .rank-tabs { width: 100%; margin-top: 0; }
+.rank-list { width: min(100%, 620px); list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.rank-row { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 14px; background: rgba(255, 255, 255, .06); border: 1px solid var(--glass-brd); font-size: 15px; }
+.rank-pos { flex: none; width: 38px; font-family: var(--font-title); font-style: italic; font-weight: 900; font-size: 18px; color: var(--muted); }
+.rank-name { flex: 1; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rank-laps { flex: none; font-size: 12px; color: var(--muted); }
+.rank-pts { flex: none; min-width: 52px; text-align: right; font-family: var(--font-title); font-style: italic; font-weight: 900; font-size: 19px; color: var(--gold); font-variant-numeric: tabular-nums; }
+.rank-row.top1 .rank-pos { color: #ffd24a; } .rank-row.top2 .rank-pos { color: #d5dbe6; } .rank-row.top3 .rank-pos { color: #e39a5c; }
+.rank-row.top1 { border-color: rgba(255, 210, 74, .6); background: rgba(255, 210, 74, .1); }
+.rank-row.me { border: 2px solid var(--green); background: rgba(139, 224, 78, .14); }
+.over-rank:empty { display: none; }
+.over-rank-note { text-align: center; font-size: 13px; font-weight: 800; color: var(--cyan); margin-bottom: 6px; }
+.rank-list.small { width: 100%; gap: 4px; }
+.rank-list.small .rank-row { padding: 5px 10px; font-size: 13px; border-radius: 10px; }
+.rank-list.small .rank-pos { width: 30px; font-size: 15px; }
+.rank-list.small .rank-pts { font-size: 16px; min-width: 44px; }
+.rank-list.small .rank-laps { display: none; }
+#over-overlay .card { max-height: 100%; overflow-y: auto; }
+
+.field { width: 100%; min-height: 52px; padding: 0 16px; border-radius: 14px; background: #0a0b18; border: 2px solid var(--glass-brd); color: var(--text); font: inherit; font-size: 17px; font-weight: 600; -webkit-user-select: text; user-select: text; outline: none; }
+.field:focus { border-color: var(--cyan); }
+.field::placeholder { color: var(--muted); font-weight: 400; }
+.field-error { min-height: 1.3em; text-align: center; font-size: 14px; font-weight: 800; color: #ff7a7f; }
+.menu-row .btn-small { flex: 1; min-width: 0; padding: 6px 6px; }
+.menu-row .btn-small .btn-label b { font-size: clamp(12px, 3.1vmin, 16px); white-space: nowrap; }
+
+@media (orientation: landscape) and (max-height: 500px) {
+  #over-overlay .card { width: min(100%, 780px); display: grid; grid-template-columns: 1fr 1fr; column-gap: 16px; row-gap: 6px; align-items: center; }
+  #over-overlay .card > h2 { grid-column: 1; grid-row: 1; }
+  #over-overlay .card > .rating { grid-column: 1; grid-row: 2; }
+  #over-overlay .card > .record { grid-column: 1; grid-row: 3; justify-self: center; }
+  #over-overlay .card > .stats { grid-column: 1; grid-row: 4; margin: 0; }
+  #over-overlay .card > .over-rank { grid-column: 2; grid-row: 1 / span 2; }
+  #over-overlay .card > #btn-again { grid-column: 2; grid-row: 3; }
+  #over-overlay .card > #btn-menu { grid-column: 2; grid-row: 4; }
+  .over-rank-note { font-size: 12px; margin-bottom: 4px; }
+  .rank-list.small .rank-row:nth-child(n+4):not(.me) { display: none; }
+  #profile-overlay .card { width: min(100%, 520px); gap: 8px; padding: 14px 18px; }
+  .field { min-height: 44px; }
+}

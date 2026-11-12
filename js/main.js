@@ -104,11 +104,12 @@
   // ---------- Menu ----------
   document.querySelectorAll('.menu .btn').forEach((btn) => {
     btn.addEventListener('click', () => {
+      if (btn.dataset.action === 'ranking') { Sound.ensure(); Sound.click(); Ranking.open(); return; }
       if (btn.dataset.action === 'garage') { Sound.ensure(); Sound.click(); Garage.open(); return; }
       if (btn.dataset.action === 'help') { Sound.ensure(); Sound.click(); Help.show(); return; }
       if (btn.dataset.action === 'race') {
         Sound.ensure();
-        Game.start();
+        Ranking.ensureProfile(() => Game.start());
       } else {
         Sound.ensure();
         Sound.click();

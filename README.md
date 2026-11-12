@@ -13,6 +13,16 @@ Abra o link do jogo (GitHub Pages) no navegador. No celular, deslize o dedo para
 3. Selecione a branch (ex.: `main`) e a pasta **/ (root)** e clique em **Save**.
 4. Em alguns minutos o jogo fica disponível em `https://<usuario>.github.io/turtle-race/`.
 
+## Ranking das turmas (Supabase)
+O ranking guarda a melhor pontuação de cada aluno das turmas 5A e 5B. Para ligar:
+1. Crie um projeto gratuito em [supabase.com](https://supabase.com).
+2. Abra **SQL Editor**, cole o conteúdo de `supabase/ranking.sql` e clique em **Run**.
+3. Em **Project Settings → API**, copie a **Project URL** e a chave **anon public**.
+4. Cole os dois em `js/config.js`. Nunca use a chave `service_role` no jogo.
+
+Enquanto `js/config.js` estiver vazio, o jogo funciona normalmente, só sem ranking.
+Os nomes e pontuações do ranking podem ser lidos por qualquer pessoa que tenha o link do jogo.
+
 ## Estrutura
 ```
 index.html        página do jogo
@@ -23,6 +33,9 @@ js/turtle.js      mini interpretador de Python turtle (executa e desenha o códi
 js/questions.js   banco de perguntas
 js/quiz.js        cartão de pergunta
 js/train.js       Modo Treino (temas, aulinhas e revisão)
+js/config.js      endereço e chave do Supabase (ranking)
+js/ranking.js     ranking das turmas
+supabase/ranking.sql  tabela e regras de segurança do ranking
 js/extras.js      Garagem (pinturas do kart), "Como jogar" e confete
 js/kart.js        desenho do kart visto por trás
 js/items.js       desenho dos obstáculos e itens

@@ -825,6 +825,7 @@ const Game = (() => {
     });
     hud.over.classList.add('show');
     if (record || rating === 3) confetti(hud.over);
+    Ranking.afterRace(st.score, laps, $('over-rank'));
   }
 
   // ---------- Atualização ----------
