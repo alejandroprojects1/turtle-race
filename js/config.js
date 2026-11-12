@@ -4,6 +4,6 @@
 // NUNCA coloque aqui a chave "service_role".
 // Enquanto os dois campos estiverem vazios, o jogo funciona normalmente, sem ranking.
 const SUPABASE = {
-  url: '',   // exemplo: 'https://abcdefghijkl.supabase.co'
+  url: 'https://bmukbdzfrdrqduigcrad.supabase.co',
   key: 'sb_publishable_ABcelTIoA0qNlYvH7dnnhw_Q83P5aYa',   // chave pública ("publishable" / "anon public")
 };
