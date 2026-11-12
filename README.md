@@ -23,6 +23,7 @@ js/turtle.js      mini interpretador de Python turtle (executa e desenha o códi
 js/questions.js   banco de perguntas
 js/quiz.js        cartão de pergunta
 js/train.js       Modo Treino (temas, aulinhas e revisão)
+js/extras.js      Garagem (pinturas do kart), "Como jogar" e confete
 js/kart.js        desenho do kart visto por trás
 js/items.js       desenho dos obstáculos e itens
 js/game.js        corrida 3D: pista, kart e controles
@@ -39,4 +40,4 @@ docs/GDD.md       documento de design do jogo
 - [x] Parte 5: exercícios estilo Duolingo e banco de questões
 - [x] Parte 6: voltas, níveis, cenários e Pit Stop
 - [x] Parte 7: Modo Treino
-- [ ] Parte 8: turbo, personalização, resultado e acabamento
+- [x] Parte 8: turbo, personalização, resultado e acabamento

@@ -97,6 +97,8 @@ const Sound = (() => {
   function wrong() { tone({ freq: 300, to: 200, type: 'sine', dur: 0.28, vol: 0.2 }); }
   function flag() { tone({ freq: 523, type: 'triangle', dur: 0.12, vol: 0.16 }); tone({ freq: 784, type: 'triangle', dur: 0.2, vol: 0.16, delay: 0.12 }); }
 
+  function turbo() { tone({ freq: 180, to: 900, type: 'sawtooth', dur: 0.5, vol: 0.1 }); tone({ freq: 880, to: 1320, type: 'triangle', dur: 0.3, vol: 0.14, delay: 0.35 }); }
+
   // Motor contínuo: um "prrrr" grave e macio que sobe de tom com a velocidade.
   let eng = null;
   function engineStart() {
@@ -146,5 +148,5 @@ const Sound = (() => {
     if (master) master.gain.value = on ? 0.6 : 0;
   }
 
-  return { ensure, vroom, click, honk, beep, swish, fanfare, pickStar, pickClock, pickShield, shieldBreak, crash, slip, overtake, tick, gameOver, correct, wrong, flag, engineStart, engineSet, engineStop, setEnabled, get enabled() { return enabled; } };
+  return { ensure, vroom, click, honk, beep, swish, fanfare, pickStar, pickClock, pickShield, shieldBreak, crash, slip, overtake, tick, gameOver, correct, wrong, flag, turbo, engineStart, engineSet, engineStop, setEnabled, get enabled() { return enabled; } };
 })();

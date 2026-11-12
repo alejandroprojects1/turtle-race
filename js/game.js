@@ -8,7 +8,7 @@ const Game = (() => {
     lap: $('hud-lap'), bar: $('hud-bar-fill'), kart: $('hud-bar-kart'),
     count: $('countdown'), banner: $('banner'), hint: $('hint'), pause: $('pause-overlay'),
     time: $('hud-time'), timeChip: $('hud-time-chip'), stars: $('hud-stars'), score: $('hud-score'), shield: $('hud-shield'),
-    over: $('over-overlay'),
+    over: $('over-overlay'), turbo: $('hud-turbo'),
   };
 
   // ---------- Configuração ----------
@@ -61,6 +61,7 @@ const Game = (() => {
     inv: 0, shake: 0, ents: [], popups: [], prevDist: 0,
     nextRow: 0, nextClock: 0, nextShield: 0, nextFlag: 0, streak: 0,
     turbo: 0, skyFade: 0, skyFrom: null, lastPit: '',
+    turboFill: 0, qTotal: 0, qFirst: 0,
   };
   let raf = 0, last = 0;
 
@@ -564,7 +565,7 @@ const Game = (() => {
     ctx.translate(x, y + Math.sin(st.t * 34) * w * 0.006 * frac);
     ctx.rotate(steer * 0.1 + (st.inv > 0 ? Math.sin(st.t * 40) * 0.05 : 0));
     if (st.inv > 0 && Math.floor(st.t * 14) % 2) ctx.globalAlpha = 0.45;
-    drawKartRear(ctx, w, { t: st.t, speed: st.turbo > 0 ? 2.2 : frac, steer });
+    drawKartRear(ctx, w, { t: st.t, speed: st.turbo > 0 ? 2.2 : frac, steer, ...Skins.opts() });
     ctx.restore();
     if (st.shield) Items.bubble(ctx, x, y, w, st.t);
     if (st.turbo > 0) {
@@ -734,18 +735,25 @@ const Game = (() => {
     Sound.engineStop(); Sound.flag();
     Quiz.ask({ level: st.lap, streak: st.streak }, {
       onWrong() {
-        st.streak = 0;
+        st.streak = 0; st.turboFill = 0;
         st.time = Math.max(0, st.time - HIT_PENALTY);
         hudUpdate();
       },
       onCorrect(first, revealed) {
-        st.streak = first ? st.streak + 1 : 0;
+        st.qTotal++;
+        if (first) { st.qFirst++; st.streak++; st.turboFill++; } else { st.streak = 0; st.turboFill = 0; }
         st.score += revealed ? 0 : first ? 50 : 20;
         hudUpdate();
       },
       onClose() {
         resumeRace();
-        if (st.mode === 'running' && st.streak > 1) popup(`${st.streak} acertos seguidos!`, '#ffd24a');
+        if (st.mode !== 'running') return;
+        if (st.turboFill >= 3) {
+          // três acertos seguidos: turbo!
+          st.turboFill = 0; st.turbo = 6;
+          popup('TURBO!', '#ffd24a'); Sound.turbo();
+        } else if (st.streak > 1) popup(`${st.streak} acertos seguidos!`, '#ffd24a');
+        hudUpdate();
       },
     });
   }
@@ -754,7 +762,7 @@ const Game = (() => {
   function openPit() {
     st.mode = 'quiz';
     Sound.engineStop(); Sound.flag();
-    const level = Math.min(5, st.lap - 1);
+    const level = Math.max(1, Math.min(5, st.lap - 1));
     let pool = PIT_STOPS.filter((q) => q.level === level && q.id !== st.lastPit);
     if (!pool.length) pool = PIT_STOPS.filter((q) => q.level === level);
     const question = pool[(Math.random() * pool.length) | 0];
@@ -764,6 +772,7 @@ const Game = (() => {
       onWrong() { st.time = Math.max(0, st.time - HIT_PENALTY); hudUpdate(); },
       onCorrect(first, revealed) {
         won = !revealed;
+        st.qTotal++; if (first) st.qFirst++;
         st.score += revealed ? 0 : first ? 100 : 50;
         hudUpdate();
       },
@@ -782,7 +791,7 @@ const Game = (() => {
       resumeRace();
       if (up === 'time') { st.time += 10; popup('+10s', '#7dff9b'); Sound.pickClock(); }
       else if (up === 'shield') { st.shield = true; hud.shield.classList.add('on'); popup('Escudo!', '#7fdcff'); Sound.pickShield(); }
-      else { st.turbo = 6; popup('TURBO!', '#ffd24a'); Sound.vroom(); }
+      else { st.turbo = 6; popup('TURBO!', '#ffd24a'); Sound.turbo(); }
       hudUpdate();
     });
   });
@@ -802,8 +811,17 @@ const Game = (() => {
     $('over-score').textContent = st.score;
     $('over-laps').textContent = st.lap - 1;
     $('over-stars').textContent = st.stars;
+    $('over-hits').textContent = `${st.qFirst}/${st.qTotal}`;
     $('over-record').classList.toggle('show', record);
+    // avaliação: 1 estrela por terminar, 2 por ir bem, 3 por ir muito bem
+    const laps = st.lap - 1;
+    const rating = 1 + (laps >= 2 || st.score >= 400 ? 1 : 0) + (laps >= 4 || st.score >= 1000 ? 1 : 0);
+    $('over-rating').querySelectorAll('svg').forEach((el, i) => {
+      el.classList.remove('on');
+      if (i < rating) setTimeout(() => { el.classList.add('on'); Sound.pickStar(); }, 350 + i * 350);
+    });
     hud.over.classList.add('show');
+    if (record || rating === 3) confetti(hud.over);
   }
 
   // ---------- Atualização ----------
@@ -882,13 +900,16 @@ const Game = (() => {
     }
     hud.stars.textContent = st.stars;
     hud.score.textContent = st.score;
+    const pips = hud.turbo.querySelectorAll('i');
+    pips.forEach((pip, i) => pip.classList.toggle('on', st.turbo > 0 ? st.turbo > i * 2 : i < st.turboFill));
+    hud.turbo.classList.toggle('active', st.turbo > 0);
   }
 
   function loop(t) {
     raf = requestAnimationFrame(loop);
     const dt = Math.min(0.05, (t - last) / 1000 || 0);
     last = t;
-    if (st.mode === 'paused' || st.mode === 'idle' || st.mode === 'over' || st.mode === 'quiz') return;
+    if (st.mode === 'paused' || st.mode === 'idle' || st.mode === 'over' || st.mode === 'quiz' || st.mode === 'help') return;
     update(dt);
     draw();
   }
@@ -951,6 +972,7 @@ const Game = (() => {
       time: START_TIME, score: 0, stars: 0, shield: false, inv: 0, shake: 0,
       ents: [], popups: [], prevDist: 0,
       nextFlag: 30, streak: 0, turbo: 0, skyFade: 0, skyFrom: null, pendingPit: false,
+      turboFill: 0, qTotal: 0, qFirst: 0,
       nextRow: 16, nextClock: 45 + Math.random() * 25, nextShield: 110 + Math.random() * 60,
     });
     hud.shield.classList.remove('on');
@@ -964,11 +986,16 @@ const Game = (() => {
     hud.hint.classList.add('show');
     setTimeout(() => hud.hint.classList.remove('show'), 6000);
     resize();
-    showCount('3'); Sound.beep(false);
-    Sound.engineStart();
-    last = performance.now();
     cancelAnimationFrame(raf);
     raf = requestAnimationFrame(loop);
+    const go = () => {
+      st.mode = 'countdown';
+      showCount('3'); Sound.beep(false);
+      Sound.engineStart();
+      last = performance.now();
+    };
+    if (Help.seen()) go();
+    else { st.mode = 'help'; draw(); Help.show(go); }
   }
 
   function pause() {

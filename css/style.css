@@ -1018,3 +1018,92 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .quiz.train { background: rgba(6, 7, 15, .8); }
 .quiz-feedback.lesson { background: rgba(76, 201, 255, .1); border: 1px solid rgba(76, 201, 255, .45); font-size: clamp(14px, 3.8vmin, 16px); }
 .quiz-feedback.lesson .btn { display: flex; }
+
+/* ==================== Parte 8: turbo, garagem, resultado e ajuda ==================== */
+.hud-turbo { gap: 4px; padding: 0 10px 0 8px; color: var(--muted); }
+.hud-turbo i { width: 12px; height: 16px; border-radius: 4px; background: rgba(255, 255, 255, .14); transform: skewX(-14deg); transition: background .2s, box-shadow .2s; }
+.hud-turbo i.on { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+.hud-turbo.active { color: var(--gold); border-color: rgba(255, 200, 61, .8); animation: pulse .4s ease-in-out infinite; }
+
+.rating { display: flex; justify-content: center; gap: 6px; }
+.rating svg { width: 48px; height: 48px; fill: rgba(255, 255, 255, .12); transition: fill .2s; }
+.rating svg.on { fill: var(--gold); filter: drop-shadow(0 0 10px rgba(255, 200, 61, .8)); animation: starPop .45s cubic-bezier(.2, 1.6, .4, 1); }
+.stats.four { grid-template-columns: repeat(4, 1fr); }
+.stats.four b { font-size: 22px; }
+.stats.four small { font-size: 10px; letter-spacing: .04em; }
+
+.confetti { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.confetti i { position: absolute; top: -12px; width: 9px; height: 14px; border-radius: 2px; opacity: 0; animation: fall linear forwards; }
+
+.menu-row { display: flex; gap: 10px; }
+.btn-small { min-height: 46px; padding: 6px 12px; justify-content: center; text-align: center; border-radius: 14px; }
+.btn-small .btn-label b { font-size: clamp(14px, 3.4vmin, 17px); }
+
+.overlay-fixed { position: fixed; z-index: 40; }
+.card.help { width: min(100%, 460px); max-height: 100%; overflow-y: auto; }
+.help-list { list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 1.35; }
+.help-list li { display: flex; align-items: center; gap: 12px; }
+.help-ico { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; background: rgba(255, 255, 255, .08); border: 1px solid var(--glass-brd); overflow: hidden; }
+.help-ico canvas { width: 44px; height: 44px; }
+.help-ico.arrows svg { width: 26px; height: 26px; fill: none; stroke: var(--gold); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.help-ico.gate { background: linear-gradient(90deg, #7a4dff, #ffd64a); color: #2a1466; font-family: var(--font-title); font-style: italic; font-weight: 900; font-size: 26px; }
+.help-ico.flag { background: conic-gradient(#fff 25%, #15172a 0 50%, #fff 0 75%, #15172a 0) 0 0 / 14px 14px; }
+
+.garage { width: min(100%, 620px); display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
+.garage-view { border-radius: 22px; background: radial-gradient(closest-side, rgba(255, 45, 61, .28), transparent), rgba(0, 0, 0, .3); border: 1px solid var(--glass-brd); padding: 8px; }
+#garage-canvas { display: block; width: 100%; height: clamp(150px, 30vh, 260px); }
+.garage-msg { text-align: center; font-weight: 800; font-size: 14px; color: var(--gold); min-height: 1.4em; }
+.garage-opts h3 { margin: 6px 0 8px; font-family: var(--font-title); font-style: italic; font-weight: 900; font-size: 18px; text-transform: uppercase; }
+.skin-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 8px; }
+.skin { display: grid; grid-template-columns: auto 1fr; column-gap: 10px; align-items: center; padding: 8px 10px; border-radius: 16px; background: rgba(255, 255, 255, .06); border: 2px solid var(--glass-brd); text-align: left; }
+.skin i { grid-row: span 2; width: 34px; height: 34px; border-radius: 50%; border: 3px solid rgba(255, 255, 255, .85); box-shadow: 0 4px 10px rgba(0, 0, 0, .5); }
+.skin b { font-size: 14px; font-weight: 800; line-height: 1.1; }
+.skin small { font-size: 11px; color: var(--muted); font-weight: 600; }
+.skin.on { border-color: var(--green); background: rgba(139, 224, 78, .14); }
+.skin.on small { color: var(--green); }
+.skin.locked { opacity: .6; }
+.skin.locked i { filter: grayscale(.6); }
+.number-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.num { width: 42px; height: 42px; border-radius: 50%; background: #f4f6ff; color: #17161f; border: 3px solid #17161f; font-family: var(--font-title); font-weight: 900; font-size: 20px; box-shadow: 0 3px 0 rgba(0, 0, 0, .5); }
+.num.on { background: var(--gold); box-shadow: 0 0 0 3px var(--gold), 0 3px 0 rgba(0, 0, 0, .5); }
+
+@keyframes starPop { from { transform: scale(0) rotate(-40deg); } }
+@keyframes fall {
+  0% { transform: translate(0, 0) rotate(0); opacity: 1; }
+  100% { transform: translate(var(--dx), 105vh) rotate(var(--rot)); opacity: 1; }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .rating svg { width: 34px; height: 34px; }
+  .stats.four b { font-size: 18px; }
+  .btn-small { min-height: 38px; }
+  .garage { flex-direction: row; width: min(100%, 860px); }
+  .garage-view { flex: 1; align-self: flex-start; }
+  .garage-opts { flex: 1.2; }
+  #garage-canvas { height: 46vh; }
+  .card.help { width: min(100%, 780px); }
+  .help-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; font-size: 13px; }
+  .help-ico, .help-ico canvas { width: 36px; height: 36px; }
+  .panel .terminal { display: none; }
+}
+
+/* tela inicial em pé: cabe tudo, incluindo Garagem e Como jogar */
+@media (orientation: portrait) {
+  .title-layout { gap: 3vh; }
+  .hero { width: min(86vw, 480px, 40vh); }
+  .panel { gap: clamp(8px, 1.6vh, 16px); }
+  .menu { gap: 10px; }
+}
+@media (orientation: portrait) and (max-height: 700px) {
+  .panel .terminal { display: none; }
+  .btn { min-height: 56px; }
+}
+
+/* HUD da corrida: quebra de linha se não couber (turbo + escudo em telas estreitas) */
+.hud2 { flex-wrap: wrap; gap: 6px; }
+@media (max-width: 420px) {
+  .hud2 .chip { height: 36px; padding: 0 10px 0 8px; }
+  .hud2 .chip b { font-size: 18px; }
+  .hud-time { min-width: 72px; }
+  .hud-score small { display: none; }
+}

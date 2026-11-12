@@ -55,8 +55,8 @@ Depois da volta 5 os cenários se repetem, e a velocidade e os obstáculos conti
 ### 2.6 Rivais
 Outros **karts pilotados por tartarugas** de cores diferentes (azul, amarelo, roxo…). Eles trocam de faixa e são obstáculos que se movem. **Ultrapassar = bônus.**
 
-### 2.7 Turbo de acertos 🔥
-Cada acerto seguido enche a barra de turbo. Barra cheia: o kart acelera, fica **invencível** por alguns segundos e o cachecol pega fogo. Mostra a sequência: "🔥 3 acertos seguidos!".
+### 2.7 Turbo de acertos ⚡
+Cada pergunta acertada de primeira acende uma das 3 luzes da barra de turbo. Com 3 acertos seguidos: o kart anda 50% mais rápido por 6 segundos e passa por cima de obstáculos e rivais. Errar apaga a barra.
 
 ### 2.8 Bandeira de pergunta 🏁
 Ao passar pela bandeira, **o jogo congela** e abre um cartão de pergunta.
@@ -69,7 +69,7 @@ Ao cruzar a linha de chegada, a corrida congela e aparece um **desafio de criar 
 - **Errou:** perde 3 segundos e tenta de novo; depois de dois erros a resposta é mostrada e a corrida segue sem prêmio.
 
 ### 2.10 Fim de corrida
-Tela de resultado com voltas, pontos, % de acertos, estrelas (1–3) e recorde pessoal (salvo no aparelho).
+Cartão de resultado com avaliação de 1 a 3 estrelas, pontos, voltas, estrelas coletadas, acertos de primeira e aviso de recorde (com confete). O recorde fica salvo no aparelho.
 
 ---
 
@@ -92,8 +92,8 @@ Tela de resultado com voltas, pontos, % de acertos, estrelas (1–3) e recorde p
 
 ---
 
-## 4. Personalização
-Os pontos desbloqueiam **cores de kart, capacetes e adesivos**. O progresso fica salvo no aparelho (sem login).
+## 4. Personalização (Garagem)
+As estrelas ganhas na corrida e no treino liberam **8 pinturas de kart** (vermelho, azul, verde, amarelo, roxo, rosa, preto e dourado, branco). A criança também escolhe o **número do kart** (1 a 9). Tudo fica salvo no aparelho, sem login.
 
 ---
 
