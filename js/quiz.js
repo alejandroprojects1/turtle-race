@@ -10,7 +10,7 @@ const Quiz = (() => {
   const el = {
     root: $('quiz'), prompt: $('quiz-prompt'), stage: $('quiz-stage'), code: $('quiz-code'), board: $('quiz-board'),
     options: $('quiz-options'), feedback: $('quiz-feedback'), msg: $('quiz-msg'), next: $('quiz-next'), streak: $('quiz-streak'),
-    work: $('quiz-work'), tray: $('quiz-tray'), bank: $('quiz-bank'), check: $('quiz-check'),
+    work: $('quiz-work'), tray: $('quiz-tray'), bank: $('quiz-bank'), check: $('quiz-check'), tag: $('quiz-tag-text'),
   };
   const MAX_TRIES = 2;            // em "montar" e "ordenar": depois disso a resposta é mostrada
   let cur = null, cb = null, anim = 0, seen = [];
@@ -195,7 +195,7 @@ const Quiz = (() => {
     const trayText = () => cur.tray.map((id) => items.find((it) => it.id === id).text).join(lines ? '\n' : '');
     cur.redraw = draw;
     cur.isRight = () => {
-      if (lines) return cur.tray.length === q.lines.length && TurtleLang.same(trayText(), q.lines.join('\n'));
+      if (lines) return cur.tray.length === q.lines.length && TurtleLang.same(trayText(), q.lines.join('\n'), { pose: q.pose });
       return (q.accept || [q.tokens.join('')]).includes(trayText());
     };
     cur.reveal = () => {
@@ -221,6 +221,8 @@ const Quiz = (() => {
     const type = q.type || 'choice';
     cur = { q, type, tries: 0, done: false };
 
+    el.root.classList.toggle('pit', !!info.pit);
+    el.tag.textContent = info.pit ? 'Pit Stop' : 'Pergunta';
     el.streak.textContent = info.streak > 1 ? `${info.streak} acertos seguidos` : '';
     el.streak.classList.toggle('show', info.streak > 1);
     el.prompt.textContent = q.prompt;

@@ -314,3 +314,78 @@ const QUESTIONS = [
     explain: 'left(90): cada canto do quadrado tem 90 graus.', demo: SQUARE,
   },
 ];
+
+// ====================== Desafios do Pit Stop ======================
+// No fim de cada volta a criança monta um programa inteiro com os blocos.
+// level = volta que acabou de completar. pose: true exige terminar no mesmo lugar.
+const PIT_STOPS = [
+  // ---------- Volta 1: forward e backward ----------
+  {
+    id: 'pit1a', level: 1, type: 'order', prompt: 'Monte um programa que desenha uma linha de 150 passos.',
+    lines: ['forward(100)', 'forward(50)'], extra: ['backward(100)', 'backward(50)'],
+    hint: 'Some os passos: quais dois comandos juntos dão 150 para frente?',
+    explain: '100 passos mais 50 passos para frente formam uma linha de 150.',
+  },
+  {
+    id: 'pit1b', level: 1, type: 'order', pose: true, prompt: 'Monte um programa que desenha uma linha de 100 passos e traz a tartaruga de volta ao começo.',
+    lines: ['forward(100)', 'backward(100)'], extra: ['forward(50)', 'backward(50)'],
+    hint: 'Para voltar ao começo, ela precisa andar de ré o mesmo tanto.',
+    explain: 'Ela vai 100 para frente e volta 100 de ré: termina onde começou.',
+  },
+
+  // ---------- Volta 2: left e right ----------
+  {
+    id: 'pit2a', level: 2, type: 'order', prompt: 'Monte o programa que desenha esta escada.',
+    lines: ['forward(50)', 'left(90)', 'forward(50)', 'right(90)', 'forward(50)'], extra: ['left(45)', 'backward(50)'],
+    hint: 'Anda, vira para a esquerda, anda, vira para a direita, anda.',
+    explain: 'Cada degrau é: andar, virar para cima, andar, virar de volta.',
+  },
+  {
+    id: 'pit2b', level: 2, type: 'order', prompt: 'Monte o programa que desenha este quadrado.',
+    lines: ['forward(100)', 'left(90)', 'forward(100)', 'left(90)', 'forward(100)', 'left(90)', 'forward(100)'], extra: ['left(45)'],
+    hint: 'O quadrado repete: anda um lado, gira 90 graus.',
+    explain: 'São 4 lados de 100 passos, com um giro de 90 graus entre eles.',
+  },
+
+  // ---------- Volta 3: goto e color ----------
+  {
+    id: 'pit3a', level: 3, type: 'order', prompt: 'Monte o programa que desenha uma linha azul até o ponto (100, 100).',
+    lines: ['color("blue")', 'goto(100, 100)'], extra: ['color("red")', 'goto(0, 0)'],
+    hint: 'Primeiro a cor, depois o goto com o endereço do ponto.',
+    explain: 'A caneta fica azul e goto(100, 100) risca uma linha reta até o ponto.',
+  },
+  {
+    id: 'pit3b', level: 3, type: 'order', prompt: 'Monte o programa que desenha este triângulo verde usando goto.',
+    lines: ['color("green")', 'goto(100, 0)', 'goto(50, 80)', 'goto(0, 0)'], extra: ['color("red")', 'goto(100, 100)'],
+    hint: 'Escolha a cor e visite as três pontas, terminando onde começou.',
+    explain: 'Com goto a tartaruga vai de ponta em ponta e volta para o (0, 0).',
+  },
+
+  // ---------- Volta 4: begin_fill e end_fill ----------
+  {
+    id: 'pit4a', level: 4, type: 'order', prompt: 'Monte o programa que desenha um quadrado vermelho pintado.',
+    lines: ['color("red")', 'begin_fill()', SQUARE, 'end_fill()'], extra: ['color("blue")', TRIANGLE],
+    hint: 'Cor, começar a pintura, a forma certa, terminar a pintura.',
+    explain: 'Cor vermelha, begin_fill(), o quadrado e end_fill() para pintar.',
+  },
+  {
+    id: 'pit4b', level: 4, type: 'order', prompt: 'Monte o programa que desenha um triângulo amarelo pintado.',
+    lines: ['color("yellow")', 'begin_fill()', TRIANGLE, 'end_fill()'], extra: ['color("green")', SQUARE],
+    hint: 'Cor, começar a pintura, a forma certa, terminar a pintura.',
+    explain: 'Cor amarela, begin_fill(), o triângulo e end_fill() para pintar.',
+  },
+
+  // ---------- Volta 5 em diante: formas completas ----------
+  {
+    id: 'pit5a', level: 5, type: 'order', prompt: 'Monte o programa que desenha um retângulo azul pintado.',
+    lines: ['color("blue")', 'begin_fill()', 'forward(150)\nleft(90)', 'forward(80)\nleft(90)', 'forward(150)\nleft(90)', 'forward(80)', 'end_fill()'], extra: ['color("orange")'],
+    hint: 'O retângulo alterna lado comprido e lado curto.',
+    explain: 'Lados de 150 e 80 se alternam, tudo entre begin_fill() e end_fill().',
+  },
+  {
+    id: 'pit5b', level: 5, type: 'order', prompt: 'Monte o programa que desenha um quadrado verde pintado usando goto.',
+    lines: ['color("green")', 'begin_fill()', 'goto(100, 0)', 'goto(100, 100)', 'goto(0, 100)', 'goto(0, 0)', 'end_fill()'], extra: ['goto(50, 50)'],
+    hint: 'Visite os quatro cantos do quadrado e volte ao começo.',
+    explain: 'A tartaruga passa pelos quatro cantos com goto e a forma é pintada no end_fill().',
+  },
+];

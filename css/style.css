@@ -944,3 +944,16 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   .quiz-code.pick .ln { padding: 1px 8px; margin: 2px -4px; }
   .quiz-code .ln.fixed { padding: 1px 8px; margin: 2px -4px; }
 }
+
+/* ---------- Pit Stop ---------- */
+.quiz.pit .quiz-tag { background: linear-gradient(90deg, #ff8a1a, #ffc83d); color: #2a1a00; }
+.quiz.pit .quiz-card { border-color: rgba(255, 200, 61, .6); box-shadow: 0 -20px 60px -10px rgba(0, 0, 0, .8), 0 0 0 2px rgba(255, 200, 61, .25); }
+.card-sub { text-align: center; color: var(--muted); font-size: 15px; line-height: 1.35; margin-bottom: 4px; }
+.card .up { justify-content: flex-start; text-align: left; padding-left: 12px; }
+.up-time { color: #9dffb4; } .up-shield { color: var(--cyan); } .up-turbo { color: var(--gold); }
+@media (orientation: landscape) and (max-height: 500px) {
+  #pit-overlay .card { width: min(100%, 720px); flex-direction: row; flex-wrap: wrap; justify-content: center; }
+  #pit-overlay .card h2, #pit-overlay .card-sub { width: 100%; }
+  #pit-overlay .up { width: calc(33.3% - 8px); }
+  #pit-overlay .up small { display: none; }
+}

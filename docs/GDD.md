@@ -31,13 +31,15 @@ Jogo educativo para o **5º ano** aprender os conceitos básicos de **Python tur
 ### 2.3 Voltas e níveis
 A cada volta, a velocidade sobe, os obstáculos ficam mais difíceis e o tema das perguntas avança.
 
-| Volta | Cenário | Pista | Conteúdo das perguntas |
-|---|---|---|---|
-| 1 | Praia ☀️ | lenta, poucos cones | `forward`, `backward` |
-| 2 | Floresta 🌳 | mais rápida, pedras e poças | `left`, `right`, ângulos |
-| 3 | Cidade 🏙️ | obstáculos que se mexem | `goto`, `color` |
-| 4 | Noite 🌙 | rápida, faróis acesos | `begin_fill`, `end_fill` |
-| 5+ | Arco-íris 🌈 | máxima | formas completas (quadrado, triângulo, retângulo…), tudo misturado |
+| Volta | Cenário | Conteúdo das perguntas |
+|---|---|---|
+| 1 | Campo ☀️ (grama e árvores verdes) | `forward`, `backward` |
+| 2 | Praia 🏖️ (areia, coqueiros e mar) | `left`, `right`, ângulos |
+| 3 | Cidade 🏙️ (prédios e postes) | `goto`, `color` |
+| 4 | Noite 🌙 (lua, estrelas e postes acesos) | `begin_fill`, `end_fill` |
+| 5 | Arco-íris 🌈 (árvores coloridas) | formas completas, tudo misturado |
+
+Depois da volta 5 os cenários se repetem, e a velocidade e os obstáculos continuam aumentando.
 
 ### 2.4 Tempo e pontos
 - Começa com um cronômetro; **quando o tempo zera, a corrida acaba**.
@@ -62,8 +64,9 @@ Ao passar pela bandeira, **o jogo congela** e abre um cartão de pergunta.
 - **Errou:** **perde 3 segundos**, aparece uma dica curta e amigável e a criança tenta de novo (as opções erradas ficam apagadas) até acertar. A pergunta vai para a lista de revisão do **Modo Treino**.
 
 ### 2.9 Pit Stop 🔧 (entre as voltas)
-Ao cruzar a linha de chegada, o kart entra no box e aparece um **desafio de criar código**: montar um programa inteiro para uma forma pedida (ex.: "quadrado vermelho preenchido").
-- **Acertou:** escolhe um upgrade para a próxima volta: ⏱️ mais tempo, 🛡️ escudo ou 🔥 turbo inicial.
+Ao cruzar a linha de chegada, a corrida congela e aparece um **desafio de criar código**: montar um programa inteiro com blocos para a forma pedida (ex.: "quadrado vermelho pintado"). A lousa mostra o objetivo pontilhado e o que a criança já montou.
+- **Acertou:** escolhe um prêmio para a próxima volta: ⏱️ +10 segundos, 🛡️ escudo ou ⚡ turbo (6 segundos mais rápido e sem bater).
+- **Errou:** perde 3 segundos e tenta de novo; depois de dois erros a resposta é mostrada e a corrida segue sem prêmio.
 
 ### 2.10 Fim de corrida
 Tela de resultado com voltas, pontos, % de acertos, estrelas (1–3) e recorde pessoal (salvo no aparelho).

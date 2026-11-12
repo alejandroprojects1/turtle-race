@@ -160,18 +160,29 @@ const TurtleLang = (() => {
 
   // Dois códigos fazem o mesmo desenho? (mesmas linhas, cores e pinturas, em qualquer ordem)
   function signature(res) {
-    const r = (n) => Math.round(n);
-    const segs = res.ops.filter((o) => o.type === 'move' && Math.hypot(o.x1 - o.x0, o.y1 - o.y0) > 0.5).map((o) => {
-      const a = [r(o.x0), r(o.y0)], b = [r(o.x1), r(o.y1)];
-      const [p1, p2] = a[0] < b[0] || (a[0] === b[0] && a[1] <= b[1]) ? [a, b] : [b, a];
-      return `${p1}-${p2}-${o.color}`;
+    // "carimba" cada linha em pontinhos de 5 em 5 passos: assim forward(150)
+    // e forward(100) + forward(50) dão o mesmo resultado
+    const dots = new Map();
+    res.ops.forEach((o) => {
+      if (o.type !== 'move') return;
+      const len = Math.hypot(o.x1 - o.x0, o.y1 - o.y0);
+      const n = Math.max(1, Math.ceil(len / 5));
+      for (let i = 0; i <= n; i++) {
+        const x = o.x0 + (o.x1 - o.x0) * i / n, y = o.y0 + (o.y1 - o.y0) * i / n;
+        dots.set(`${Math.round(x / 5)},${Math.round(y / 5)}`, o.color);
+      }
     });
-    const fills = res.ops.filter((o) => o.type === 'fill').map((o) => o.color + ':' + o.pts.map(([x, y]) => `${r(x)},${r(y)}`).sort().join(';'));
-    return [...new Set(segs)].sort().join('|') + '#' + fills.sort().join('|');
+    if (dots.size === 1) dots.clear();          // tartaruga parada não desenha nada
+    const r = (n) => Math.round(n);
+    const fills = res.ops.filter((o) => o.type === 'fill').map((o) => o.color + ':' + [...new Set(o.pts.map(([x, y]) => `${r(x)},${r(y)}`))].sort().join(';'));
+    return [...dots].map(([k, c]) => k + c).sort().join('|') + '#' + fills.sort().join('|');
   }
-  function same(codeA, codeB) {
+  // opts.pose: também exige que a tartaruga termine no mesmo lugar
+  function same(codeA, codeB, opts = {}) {
     const a = run(codeA), b = run(codeB);
-    return !a.error && !b.error && signature(a) === signature(b);
+    if (a.error || b.error || signature(a) !== signature(b)) return false;
+    if (opts.pose) return Math.hypot(a.end.x - b.end.x, a.end.y - b.end.y) < 1;
+    return true;
   }
 
   // Linha do código que está sendo executada no instante `time`

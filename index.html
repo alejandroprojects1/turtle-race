@@ -147,7 +147,7 @@
       <div class="quiz-card">
         <div class="quiz-main">
           <div class="quiz-head">
-            <span class="quiz-tag"><i></i>Pergunta</span>
+            <span class="quiz-tag"><i></i><span id="quiz-tag-text">Pergunta</span></span>
             <span class="quiz-streak" id="quiz-streak"></span>
           </div>
           <p id="quiz-prompt" class="quiz-prompt"></p>
@@ -168,6 +168,17 @@
             <button id="quiz-next" class="btn btn-primary"><span class="btn-label"><b>Continuar</b></span><span class="btn-go"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg></span></button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Prêmio do Pit Stop -->
+    <div id="pit-overlay" class="overlay">
+      <div class="card">
+        <h2>Pit Stop!</h2>
+        <p class="card-sub">Programa certo! Escolha um prêmio para a próxima volta:</p>
+        <button class="btn btn-glass up" data-up="time"><span class="btn-ico up-time"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M12 9v4.5l3 1.8M9.5 2.5h5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span><span class="btn-label"><b>+10 segundos</b><small>Mais tempo no relógio</small></span></button>
+        <button class="btn btn-glass up" data-up="shield"><span class="btn-ico up-shield"><svg viewBox="0 0 24 24"><path d="M12 2.5l8 3v6c0 5-3.4 8.6-8 10-4.6-1.4-8-5-8-10v-6z" fill="currentColor"/></svg></span><span class="btn-label"><b>Escudo</b><small>Protege de uma batida</small></span></button>
+        <button class="btn btn-glass up" data-up="turbo"><span class="btn-ico up-turbo"><svg viewBox="0 0 24 24"><path d="M13 2L5 14h5.5l-1.5 8 8-12h-5.5z" fill="currentColor"/></svg></span><span class="btn-label"><b>Turbo</b><small>6 segundos voando e sem bater</small></span></button>
       </div>
     </div>
 
