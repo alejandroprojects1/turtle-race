@@ -82,6 +82,17 @@ const Sound = (() => {
     [523, 659, 784, 1047].forEach((f, i) => tone({ freq: f, type: 'triangle', dur: 0.18, vol: 0.16, delay: i * 0.1 }));
   }
 
+  function pickStar() { tone({ freq: 988, type: 'triangle', dur: 0.09, vol: 0.14 }); tone({ freq: 1319, type: 'triangle', dur: 0.14, vol: 0.14, delay: 0.07 }); }
+  function pickClock() { [659, 784, 988].forEach((f, i) => tone({ freq: f, type: 'sine', dur: 0.14, vol: 0.18, delay: i * 0.08 })); }
+  function pickShield() { tone({ freq: 330, to: 990, type: 'sine', dur: 0.35, vol: 0.18 }); }
+  function shieldBreak() { tone({ freq: 900, to: 300, type: 'triangle', dur: 0.25, vol: 0.16 }); }
+  // batida: um "boing" macio, sem susto
+  function crash() { tone({ freq: 220, to: 70, type: 'triangle', dur: 0.3, vol: 0.3 }); tone({ freq: 140, to: 60, type: 'square', dur: 0.18, vol: 0.07 }); }
+  function slip() { tone({ freq: 700, to: 250, type: 'sine', dur: 0.4, vol: 0.14 }); }
+  function overtake() { tone({ freq: 587, to: 880, type: 'triangle', dur: 0.16, vol: 0.14 }); }
+  function tick() { tone({ freq: 1200, type: 'square', dur: 0.05, vol: 0.05 }); }
+  function gameOver() { [523, 440, 349, 262].forEach((f, i) => tone({ freq: f, type: 'triangle', dur: 0.25, vol: 0.16, delay: i * 0.17 })); }
+
   // Motor contínuo: um "prrrr" grave e macio que sobe de tom com a velocidade.
   let eng = null;
   function engineStart() {
@@ -131,5 +142,5 @@ const Sound = (() => {
     if (master) master.gain.value = on ? 0.6 : 0;
   }
 
-  return { ensure, vroom, click, honk, beep, swish, fanfare, engineStart, engineSet, engineStop, setEnabled, get enabled() { return enabled; } };
+  return { ensure, vroom, click, honk, beep, swish, fanfare, pickStar, pickClock, pickShield, shieldBreak, crash, slip, overtake, tick, gameOver, engineStart, engineSet, engineStop, setEnabled, get enabled() { return enabled; } };
 })();

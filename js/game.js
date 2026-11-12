@@ -7,6 +7,8 @@ const Game = (() => {
   const hud = {
     lap: $('hud-lap'), bar: $('hud-bar-fill'), kart: $('hud-bar-kart'),
     count: $('countdown'), banner: $('banner'), hint: $('hint'), pause: $('pause-overlay'),
+    time: $('hud-time'), timeChip: $('hud-time-chip'), stars: $('hud-stars'), score: $('hud-score'), shield: $('hud-shield'),
+    over: $('over-overlay'),
   };
 
   // ---------- Configuração ----------
@@ -20,6 +22,15 @@ const Game = (() => {
   const BASE_SPEED = 7;          // velocidade da 1ª volta (unidades/s)
   const SPEED_PER_LAP = 0.08;    // cada volta fica 8% mais rápida
   const MAX_SPEED = 14;
+  const START_TIME = 60;         // segundos no começo da corrida
+  const CLOCK_BONUS = 5;         // segundos que o relógio dá
+  const HIT_PENALTY = 3;         // segundos perdidos numa batida
+  const RIVALS = [
+    { body: '#2f7de1', bodyDark: '#174a94', bodyLight: '#6fb0ff', helmet: ['#8fc4ff', '#2f7de1', '#174a94'], scarf: ['#ffc83d', '#ffe08a'], number: '2' },
+    { body: '#f2b01e', bodyDark: '#a87200', bodyLight: '#ffd96b', helmet: ['#ffe9a0', '#f2b01e', '#a87200'], scarf: ['#2f7de1', '#6fb0ff'], number: '3' },
+    { body: '#8a4be0', bodyDark: '#532a93', bodyLight: '#b98bff', helmet: ['#d2b5ff', '#8a4be0', '#532a93'], scarf: ['#4fd1a5', '#8ff0cf'], number: '4' },
+    { body: '#17a673', bodyDark: '#0b6646', bodyLight: '#5ddcab', helmet: ['#a5f0d2', '#17a673', '#0b6646'], scarf: ['#ff7a1a', '#ffb36b'], number: '5' },
+  ];
 
   // ---------- Medidas da tela ----------
   let W = 0, H = 0, dpr = 1, cx = 0, horizon = 0, roadH = 0, half = 0;
@@ -32,6 +43,9 @@ const Game = (() => {
     lane: 1, laneF: 1,
     t: 0, countT: 0, countN: 3,
     particles: [],
+    time: START_TIME, score: 0, stars: 0, shield: false,
+    inv: 0, shake: 0, ents: [], popups: [], prevDist: 0,
+    nextRow: 0, nextClock: 0, nextShield: 0,
   };
   let raf = 0, last = 0;
 
@@ -281,6 +295,10 @@ const Game = (() => {
       const z = k * LAP_LEN - st.dist + Z_KART + 0.25;
       if (z > 0.9 && z < Z_FAR) list.push({ type: 'gantry', z });
     }
+    st.ents.forEach((e) => {
+      const z = e.z - st.dist;
+      if (z > 0.75 && z < Z_FAR) list.push({ type: 'ent', z, e });
+    });
     return list.sort((a, b) => b.z - a.z);
   }
 
@@ -289,6 +307,17 @@ const Game = (() => {
       const alpha = Math.min(1, (Z_FAR - o.z) / 8);
       drawTree(px(o.x, o.z), py(o.z), o.h * ps(o.z), o.kind, o.tone, alpha);
     } else if (o.type === 'gantry') drawGantry(o.z);
+    else if (o.type === 'ent') {
+      const e = o.e, sc = ps(o.z);
+      const x = px((e.laneF - (LANES - 1) / 2) * LANE_W, o.z), y = py(o.z);
+      ctx.globalAlpha = Math.min(1, (Z_FAR - o.z) / 6);
+      if (e.type === 'rival') {
+        ctx.save(); ctx.translate(x, y); ctx.rotate((e.lane - e.laneF) * 0.2);
+        drawKartRear(ctx, LANE_W * sc * 0.86, { t: st.t + e.z, speed: 0.6, steer: (e.lane - e.laneF) * 2, ...RIVALS[e.pal] });
+        ctx.restore();
+      } else Items.draw(ctx, e, x, y, sc * 1.3, st.t);
+      ctx.globalAlpha = 1;
+    }
   }
 
   // ---------- Kart ----------
@@ -309,20 +338,153 @@ const Game = (() => {
 
     ctx.save();
     ctx.translate(x, y + Math.sin(st.t * 34) * w * 0.006 * frac);
-    ctx.rotate(steer * 0.1);
+    ctx.rotate(steer * 0.1 + (st.inv > 0 ? Math.sin(st.t * 40) * 0.05 : 0));
+    if (st.inv > 0 && Math.floor(st.t * 14) % 2) ctx.globalAlpha = 0.45;
     drawKartRear(ctx, w, { t: st.t, speed: frac, steer });
     ctx.restore();
+    if (st.shield) Items.bubble(ctx, x, y, w, st.t);
   }
 
   function draw() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, W, H);
+    if (st.shake > 0) ctx.translate((Math.random() - 0.5) * 14 * st.shake, (Math.random() - 0.5) * 14 * st.shake);
     drawSky();
     drawGround();
     const objs = sideObjects();
     objs.filter((o) => o.z >= Z_KART).forEach(drawObject);
     drawKart();
     objs.filter((o) => o.z < Z_KART).forEach(drawObject);
+
+    // textos que sobem ("+5s", "-3s"...)
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+    st.popups.forEach((p) => {
+      ctx.globalAlpha = Math.max(0, Math.min(1, p.a * 2));
+      ctx.font = `italic 900 ${Math.max(20, half * 0.1)}px "Exo 2", sans-serif`;
+      ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(15,18,30,.85)'; ctx.fillStyle = p.color;
+      const x = Math.max(W * 0.3, Math.min(W * 0.7, p.x));
+      ctx.strokeText(p.text, x, p.y); ctx.fillText(p.text, x, p.y);
+    });
+    ctx.globalAlpha = 1;
+  }
+
+  // ---------- Obstáculos, itens e rivais ----------
+  function popup(text, color) {
+    st.popups.forEach((p) => { p.y -= 30; });
+    st.popups.push({ text, color, x: px(kartX(), Z_KART), y: py(Z_KART) - ps(Z_KART) * LANE_W * 1.05, a: 1 });
+  }
+
+  function spawnRow(z) {
+    const lap = Math.floor(z / LAP_LEN) + 1, inLap = z % LAP_LEN;
+    if (inLap < 5 || inLap > LAP_LEN - 4) return;              // deixa a chegada livre
+    const hasRival = st.ents.some((e) => e.type === 'rival');
+    const lanes = [0, 1, 2].sort(() => Math.random() - 0.5);
+    const kinds = lap === 1 ? ['cone'] : lap === 2 ? ['cone', 'cone', 'rock', 'oil'] : ['cone', 'rock', 'oil', 'tires'];
+    if (!hasRival && Math.random() < Math.min(0.32, 0.12 + 0.05 * lap)) {
+      st.ents.push({ type: 'rival', lane: lanes[0], laneF: lanes[0], z, pal: (Math.random() * RIVALS.length) | 0, passed: false });
+    } else {
+      // com rival na pista só bloqueia 1 faixa, para sempre sobrar caminho
+      const blocked = !hasRival && Math.random() < Math.min(0.5, (lap - 1) * 0.15) ? 2 : 1;
+      for (let i = 0; i < blocked; i++) {
+        st.ents.push({ type: kinds[(Math.random() * kinds.length) | 0], lane: lanes[i], laneF: lanes[i], z });
+      }
+    }
+    const free = lanes[2];
+    if (z >= st.nextClock) {
+      st.ents.push({ type: 'clock', lane: free, laneF: free, z });
+      st.nextClock = z + 60 + Math.random() * 35;
+    } else if (z >= st.nextShield) {
+      st.ents.push({ type: 'shield', lane: free, laneF: free, z });
+      st.nextShield = z + 150 + Math.random() * 80;
+    } else if (Math.random() < 0.55) {
+      for (let j = 0; j < 3; j++) st.ents.push({ type: 'star', lane: free, laneF: free, z: z + j * 1.1 });
+    }
+  }
+
+  const SOLID = { cone: 1, rock: 1, tires: 1, oil: 1 };
+
+  function hit(e) {
+    if (st.shield) {
+      st.shield = false; st.inv = 1;
+      hud.shield.classList.remove('on');
+      popup('Escudo!', '#7fdcff'); Sound.shieldBreak();
+      return;
+    }
+    if (e.type === 'oil') {
+      st.time -= 1; st.inv = 0.9;
+      const dir = st.lane === 0 ? 1 : st.lane === LANES - 1 ? -1 : (Math.random() < 0.5 ? -1 : 1);
+      st.lane += dir;
+      popup('Escorregou! -1s', '#c9a6ff'); Sound.slip();
+    } else {
+      st.time -= HIT_PENALTY; st.inv = 1.5; st.shake = 1; st.speed *= 0.4;
+      popup(`-${HIT_PENALTY}s`, '#ff5a5f'); Sound.crash();
+    }
+    if (navigator.vibrate) navigator.vibrate(120);
+  }
+
+  function updateEntities(dt, target) {
+    // cria as próximas fileiras lá no horizonte
+    while (st.nextRow < st.dist + Z_FAR) {
+      spawnRow(st.nextRow);
+      const lap = Math.floor(st.nextRow / LAP_LEN) + 1;
+      st.nextRow += Math.max(5.5, 10 - lap * 0.9) * (0.8 + Math.random() * 0.4);
+    }
+
+    const zHit = Z_KART;
+    st.ents.forEach((e) => {
+      const prev = e.z - st.prevDist;
+      if (e.type === 'rival') {
+        e.z += target * 0.5 * dt;                               // rival anda mais devagar que o jogador
+        // desvia sozinho dos obstáculos (só quando está longe do jogador)
+        if (e.z - st.dist > 5 && Math.abs(e.lane - e.laneF) < 0.1) {
+          const blocked = (ln, a, b) => st.ents.some((o) => SOLID[o.type] && o.lane === ln && o.z > e.z + a && o.z < e.z + b);
+          if (blocked(e.lane, 0, 3.5)) {
+            const opts = [e.lane - 1, e.lane + 1].filter((ln) => ln >= 0 && ln < LANES && !blocked(ln, -1, 4.5));
+            if (opts.length) e.lane = opts[(Math.random() * opts.length) | 0];
+          }
+        }
+        e.laneF += (e.lane - e.laneF) * Math.min(1, dt * 5);
+      }
+      const rel = e.z - st.dist;
+      const reach = e.type === 'rival' ? 0.42 : 0.3;
+      const touching = rel <= zHit + reach && prev >= zHit - reach && Math.abs(e.laneF - st.laneF) < 0.5;
+      if (touching && !e.done) {
+        if (e.type === 'star') { e.done = e.gone = true; st.stars++; st.score += 10; Sound.pickStar(); }
+        else if (e.type === 'clock') { e.done = e.gone = true; st.time += CLOCK_BONUS; popup(`+${CLOCK_BONUS}s`, '#7dff9b'); Sound.pickClock(); }
+        else if (e.type === 'shield') { e.done = e.gone = true; st.shield = true; hud.shield.classList.add('on'); popup('Escudo!', '#7fdcff'); Sound.pickShield(); }
+        else if (st.inv <= 0) {
+          const hadShield = st.shield;
+          hit(e);
+          if (e.type === 'rival') { e.z += 1.6; e.passed = true; }   // rival é empurrado para frente
+          else { e.done = true; if (hadShield || e.type !== 'oil') e.gone = true; }
+        }
+      }
+      if (e.type === 'rival' && !e.passed && rel < zHit - 0.6) {
+        e.passed = true; st.score += 20;
+        popup('Ultrapassou! +20', '#ffd24a'); Sound.overtake();
+      }
+      if (rel < 0.7) e.gone = true;
+    });
+    st.ents = st.ents.filter((e) => !e.gone);
+  }
+
+  function gameOver() {
+    st.mode = 'over';
+    st.time = 0;
+    Sound.engineStop(); Sound.gameOver();
+    let save = {};
+    try { save = JSON.parse(localStorage.getItem('tr-save') || '{}'); } catch (e) { /* sem storage */ }
+    const record = st.score > (save.best || 0);
+    save.best = Math.max(save.best || 0, st.score);
+    save.stars = (save.stars || 0) + st.stars;
+    try { localStorage.setItem('tr-save', JSON.stringify(save)); } catch (e) { /* sem storage */ }
+    $('best-score').textContent = save.best;
+    $('total-stars').textContent = save.stars;
+    $('over-score').textContent = st.score;
+    $('over-laps').textContent = st.lap - 1;
+    $('over-stars').textContent = st.stars;
+    $('over-record').classList.toggle('show', record);
+    hud.over.classList.add('show');
   }
 
   // ---------- Atualização ----------
@@ -342,12 +504,25 @@ const Game = (() => {
       }
     }
 
+    st.prevDist = st.dist;
     st.dist += st.speed * dt;
+    st.inv = Math.max(0, st.inv - dt);
+    st.shake = Math.max(0, st.shake - dt * 3);
+    st.popups.forEach((p) => { p.y -= 60 * dt; p.a -= dt * 0.9; });
+    st.popups = st.popups.filter((p) => p.a > 0);
+    if (st.mode === 'running') {
+      st.time -= dt;
+      updateEntities(dt, target);
+      if (st.time <= 0) { st.time = 0; hudUpdate(); draw(); gameOver(); return; }
+    }
+    hudUpdate();
     st.laneF += (st.lane - st.laneF) * Math.min(1, dt * 14);
 
     // volta completa
     const lap = Math.floor(st.dist / LAP_LEN) + 1;
     if (lap !== st.lap) {
+      st.score += 100 * st.lap;
+      popup(`Volta completa! +${100 * st.lap}`, '#ffd24a');
       st.lap = lap;
       hud.lap.textContent = lap;
       showBanner(`Volta ${lap}!`);
@@ -373,11 +548,22 @@ const Game = (() => {
     Sound.engineSet(st.speed / MAX_SPEED, st.mode === 'countdown');
   }
 
+  function hudUpdate() {
+    const secs = Math.max(0, Math.ceil(st.time));
+    if (hud.time.textContent !== String(secs)) {
+      hud.time.textContent = secs;
+      hud.timeChip.classList.toggle('low', secs <= 10);
+      if (secs <= 10 && secs > 0 && st.mode === 'running') Sound.tick();
+    }
+    hud.stars.textContent = st.stars;
+    hud.score.textContent = st.score;
+  }
+
   function loop(t) {
     raf = requestAnimationFrame(loop);
     const dt = Math.min(0.05, (t - last) / 1000 || 0);
     last = t;
-    if (st.mode === 'paused' || st.mode === 'idle') return;
+    if (st.mode === 'paused' || st.mode === 'idle' || st.mode === 'over') return;
     update(dt);
     draw();
   }
@@ -437,7 +623,13 @@ const Game = (() => {
     Object.assign(st, {
       mode: 'countdown', dist: 0, speed: 0, lap: 1, lane: 1, laneF: 1,
       t: 0, countN: 3, countT: 0.75, particles: [],
+      time: START_TIME, score: 0, stars: 0, shield: false, inv: 0, shake: 0,
+      ents: [], popups: [], prevDist: 0,
+      nextRow: 16, nextClock: 45 + Math.random() * 25, nextShield: 110 + Math.random() * 60,
     });
+    hud.shield.classList.remove('on');
+    hud.over.classList.remove('show');
+    hudUpdate();
     hud.lap.textContent = '1';
     hud.pause.classList.remove('show');
     hud.banner.classList.remove('show');
@@ -467,6 +659,8 @@ const Game = (() => {
   }
   function exit() {
     st.mode = 'idle';
+    hud.over.classList.remove('show');
+    hud.pause.classList.remove('show');
     cancelAnimationFrame(raf);
     Sound.engineStop();
     screen.classList.remove('active');
@@ -476,6 +670,8 @@ const Game = (() => {
   $('btn-pause').addEventListener('click', () => { Sound.click(); pause(); });
   $('btn-resume').addEventListener('click', () => { Sound.click(); resume(); });
   $('btn-exit').addEventListener('click', () => { Sound.click(); exit(); });
+  $('btn-again').addEventListener('click', () => { Sound.click(); start(); });
+  $('btn-menu').addEventListener('click', () => { Sound.click(); exit(); });
   document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
   window.addEventListener('resize', () => { if (screen.classList.contains('active')) resize(); });
 

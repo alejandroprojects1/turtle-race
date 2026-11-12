@@ -4,6 +4,8 @@ function drawKartRear(ctx, w, opt = {}) {
   const t = opt.t || 0, speed = opt.speed || 0, steer = opt.steer || 0;
   const body = opt.body || '#e8262a', bodyDark = opt.bodyDark || '#a3121a', bodyLight = opt.bodyLight || '#ff5a55';
   const skin = opt.skin || '#7fd13b';
+  const helmet = opt.helmet || ['#ff7a70', '#e8262a', '#a3121a'];
+  const scarf = opt.scarf || ['#d81f2a', '#ff3b3f'];
   const u = w;                                   // 1 unidade = largura do kart
   const rr = (x, y, ww, hh, r) => { ctx.beginPath(); ctx.roundRect(x * u, y * u, ww * u, hh * u, r * u); };
   const lin = (x0, y0, x1, y1, stops) => {
@@ -132,20 +134,20 @@ function drawKartRear(ctx, w, opt = {}) {
 
   // cachecol ao vento
   const wave = (k) => Math.sin(t * 9 + k) * 0.025 * (0.4 + speed);
-  ctx.fillStyle = '#d81f2a';
+  ctx.fillStyle = scarf[0];
   ctx.beginPath();
   ctx.moveTo(0.06 * u, -0.77 * u);
   ctx.quadraticCurveTo(0.2 * u, (-0.86 + wave(0)) * u, 0.36 * u, (-0.8 + wave(1)) * u);
   ctx.quadraticCurveTo(0.3 * u, (-0.76 + wave(2)) * u, 0.37 * u, (-0.7 + wave(1.5)) * u);
   ctx.quadraticCurveTo(0.2 * u, (-0.72 + wave(0.5)) * u, 0.06 * u, -0.71 * u);
   ctx.closePath(); ctx.fill();
-  ctx.fillStyle = '#ff3b3f';
+  ctx.fillStyle = scarf[1];
   rr(-0.105, -0.78, 0.21, 0.06, 0.03); ctx.fill();
 
   // capacete
   const hy = -0.9, hr = 0.155;
   const hg = ctx.createRadialGradient(-0.05 * u, (hy - 0.06) * u, 0.01 * u, 0, hy * u, hr * u);
-  hg.addColorStop(0, '#ff7a70'); hg.addColorStop(0.5, '#e8262a'); hg.addColorStop(1, '#a3121a');
+  hg.addColorStop(0, helmet[0]); hg.addColorStop(0.5, helmet[1]); hg.addColorStop(1, helmet[2]);
   ctx.fillStyle = hg;
   ctx.beginPath(); ctx.arc(0, hy * u, hr * u, 0, Math.PI * 2); ctx.fill();
   ctx.save(); ctx.clip();
@@ -161,7 +163,7 @@ function drawKartRear(ctx, w, opt = {}) {
   ctx.restore();
   // protetores de orelha
   [-1, 1].forEach((sd) => {
-    ctx.fillStyle = '#c81c24';
+    ctx.fillStyle = helmet[2];
     ctx.beginPath(); ctx.ellipse(sd * 0.155 * u, (hy + 0.03) * u, 0.03 * u, 0.05 * u, 0, 0, Math.PI * 2); ctx.fill();
   });
 

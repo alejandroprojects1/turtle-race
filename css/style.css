@@ -680,3 +680,57 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   100% { transform: translate(-50%, -50%) scale(.7); opacity: 0; }
 }
 @keyframes nudge { 50% { transform: translateX(-3px); } }
+
+/* ---------- Tempo, estrelas, pontos e escudo ---------- */
+.hud2 {
+  position: absolute;
+  z-index: 5;
+  top: calc(max(10px, env(safe-area-inset-top)) + 52px);
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 14px;
+  pointer-events: none;
+}
+.hud2 .chip { background: rgba(12, 10, 28, .6); height: 40px; }
+.hud2 .chip b { font-family: var(--font-title); font-style: italic; font-weight: 900; font-size: 20px; font-variant-numeric: tabular-nums; }
+.hud2 .ico { width: 20px; height: 20px; }
+.hud-time { color: #9dffb4; min-width: 86px; justify-content: center; }
+.hud-time.low { color: #ff6b70; border-color: rgba(255, 90, 95, .7); animation: pulse .5s ease-in-out infinite; }
+.hud-score { gap: 8px; }
+.hud-score small { font-size: 10px; font-weight: 800; letter-spacing: .1em; color: var(--muted); }
+.hud-score b { color: var(--gold); }
+.hud-shield { display: none; padding: 0 10px; box-shadow: 0 0 16px rgba(76, 201, 255, .8); border-color: rgba(76, 201, 255, .8); }
+.hud-shield.on { display: inline-flex; animation: rise .3s both; }
+
+/* ---------- Fim de corrida ---------- */
+.record {
+  display: none;
+  align-self: center;
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--gold), #ff9d3d);
+  color: #2a1a00;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.record.show { display: block; animation: pulse 1s ease-in-out infinite; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 4px; }
+.stats div { display: flex; flex-direction: column; align-items: center; padding: 10px 4px; border-radius: 14px; background: rgba(255, 255, 255, .06); border: 1px solid var(--glass-brd); }
+.stats small { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.stats b { font-family: var(--font-title); font-style: italic; font-weight: 900; font-size: 28px; color: var(--gold); }
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .hud2 { top: calc(max(10px, env(safe-area-inset-top)) + 48px); justify-content: flex-start; padding-left: max(14px, env(safe-area-inset-left)); }
+  .hud2 .chip { height: 34px; }
+  .hud2 .chip b { font-size: 17px; }
+  .card { padding: 14px 18px; gap: 8px; }
+  .card h2 { font-size: 24px; margin: 0; }
+  .card .btn { min-height: 46px; }
+  .stats div { padding: 4px; }
+  .stats b { font-size: 22px; }
+}

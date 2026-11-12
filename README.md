@@ -20,6 +20,7 @@ css/style.css     visual
 js/audio.js       sons gerados pelo navegador (Web Audio)
 js/fx.js          faíscas de velocidade do fundo
 js/kart.js        desenho do kart visto por trás
+js/items.js       desenho dos obstáculos e itens
 js/game.js        corrida 3D: pista, kart e controles
 js/main.js        tela inicial e menu
 assets/           imagens (tartaruga piloto)
@@ -29,7 +30,7 @@ docs/GDD.md       documento de design do jogo
 ## Andamento
 - [x] Parte 1: base e tela inicial
 - [x] Parte 2: pista e controle
-- [ ] Parte 3: obstáculos, itens, rivais e tempo
+- [x] Parte 3: obstáculos, itens, rivais e tempo
 - [ ] Parte 4: mini interpretador turtle + perguntas
 - [ ] Parte 5: exercícios estilo Duolingo e banco de questões
 - [ ] Parte 6: voltas, níveis, cenários e Pit Stop
