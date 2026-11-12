@@ -876,3 +876,71 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   .quiz { align-items: center; }
   .quiz-card { border-radius: 26px; border-bottom: 1px solid var(--glass-brd); padding: 22px; }
 }
+
+/* ---------- Exercícios estilo Duolingo ---------- */
+.quiz-stage.with-board .quiz-board, .quiz-stage.no-code.with-board .quiz-board { display: block; }
+.quiz-feedback.reveal { background: rgba(76, 201, 255, .12); border: 1px solid rgba(76, 201, 255, .5); }
+.quiz-feedback.reveal p b { color: var(--cyan); }
+.quiz-feedback.reveal .btn { display: flex; }
+
+/* lacuna */
+.blank { display: inline-block; min-width: 3.2em; padding: 0 .4em; border-radius: 6px; background: rgba(255, 200, 61, .18); border-bottom: 2px solid var(--gold); color: var(--gold); text-align: center; }
+.blank.good { background: rgba(139, 224, 78, .25); border-color: var(--green); color: var(--green); }
+.blank.bad { background: rgba(255, 45, 61, .25); border-color: #ff7a7f; color: #ff9da0; animation: shakeX .35s; }
+.quiz-options.chips { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+.opt-chip { width: auto; min-width: 84px; justify-content: center; padding: 8px 18px; font-family: var(--font-code); }
+
+/* achar o bug */
+.quiz-code.pick .ln { cursor: pointer; padding: 3px 8px; margin: 3px -4px; border: 1px dashed rgba(255, 255, 255, .22); }
+.quiz-code.pick .ln:active { background: rgba(255, 255, 255, .1); }
+.quiz-code .ln.bad { background: rgba(255, 45, 61, .18); border-color: rgba(255, 90, 95, .6); opacity: .6; animation: shakeX .35s; }
+.quiz-code .ln.fixed { background: rgba(139, 224, 78, .2); padding: 3px 8px; margin: 3px -4px; }
+.quiz-code .ln.fixed s { opacity: .5; }
+
+/* montar e ordenar */
+.quiz-work { display: none; flex-direction: column; gap: 10px; }
+.quiz-work.show { display: flex; }
+.tray {
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+  min-height: 58px; padding: 8px;
+  border-radius: 16px;
+  background: #0a0b18;
+  border: 2px dashed rgba(255, 255, 255, .25);
+}
+.tray.good { border: 2px solid var(--green); background: rgba(139, 224, 78, .12); }
+.tray.bad { border-color: #ff7a7f; animation: shakeX .35s; }
+.tray-hint { color: var(--muted); font-size: 14px; padding: 0 6px; }
+.bank { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.blk {
+  padding: 9px 13px; min-height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(#34325e, #26244a);
+  border: 1px solid rgba(255, 255, 255, .22);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, .45);
+  font-family: var(--font-code); font-size: clamp(14px, 3.8vmin, 17px); text-align: left;
+  transition: transform .1s;
+}
+.blk:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
+.blk code { font-family: inherit; white-space: pre; }
+.blk code .ln { display: block; }
+.blk code .fn { color: var(--cyan); } .blk code .num { color: #ff9d6b; } .blk code .str { color: var(--green); }
+.blk.used { opacity: .22; box-shadow: none; }
+.quiz-work.lines .tray, .quiz-work.lines .bank { flex-direction: column; align-items: stretch; flex-wrap: nowrap; }
+.quiz-work.lines .blk { padding: 6px 12px; min-height: 36px; }
+.quiz-work.done .bank, .quiz-work.done .btn-check { display: none; }
+.btn-check { min-height: 50px; justify-content: center; text-align: center; background: linear-gradient(100deg, #5fbf3a, #8be04e); color: #0d2a00; box-shadow: 0 8px 22px -10px rgba(139, 224, 78, .9), inset 0 1px 0 rgba(255, 255, 255, .5); }
+.btn-check:disabled { background: rgba(255, 255, 255, .08); color: var(--muted); box-shadow: none; }
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .quiz-side { overflow-y: auto; justify-content: flex-start; }
+  .quiz-work { gap: 6px; }
+  .tray { min-height: 44px; padding: 5px; }
+  .blk { min-height: 34px; padding: 5px 10px; font-size: 13px; }
+  .quiz-work.lines .blk { min-height: 28px; padding: 3px 10px; }
+  .btn-check { min-height: 40px; }
+}
+.quiz-work.lines .blk.used { display: none; }
+@media (orientation: landscape) and (max-height: 500px) {
+  .quiz-code.pick .ln { padding: 1px 8px; margin: 2px -4px; }
+  .quiz-code .ln.fixed { padding: 1px 8px; margin: 2px -4px; }
+}

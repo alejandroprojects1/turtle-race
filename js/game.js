@@ -515,9 +515,9 @@ const Game = (() => {
         st.time = Math.max(0, st.time - HIT_PENALTY);
         hudUpdate();
       },
-      onCorrect(first) {
+      onCorrect(first, revealed) {
         st.streak = first ? st.streak + 1 : 0;
-        st.score += first ? 50 : 20;
+        st.score += revealed ? 0 : first ? 50 : 20;
         hudUpdate();
       },
       onClose() {

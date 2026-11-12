@@ -35,7 +35,7 @@ docs/GDD.md       documento de design do jogo
 - [x] Parte 2: pista e controle
 - [x] Parte 3: obstáculos, itens, rivais e tempo
 - [x] Parte 4: mini interpretador turtle + perguntas
-- [ ] Parte 5: exercícios estilo Duolingo e banco de questões
+- [x] Parte 5: exercícios estilo Duolingo e banco de questões
 - [ ] Parte 6: voltas, níveis, cenários e Pit Stop
 - [ ] Parte 7: Modo Treino
 - [ ] Parte 8: turbo, personalização, resultado e acabamento

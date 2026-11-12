@@ -101,7 +101,7 @@ const TurtleLang = (() => {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
 
-    const b = opts.bounds || res.bounds;
+    const b = opts.bounds || (opts.ghost ? union([res, opts.ghost]) : res.bounds);
     const pad = opts.pad != null ? opts.pad : Math.max(12, w * 0.14);
     const bw = Math.max(40, b.x1 - b.x0), bh = Math.max(40, b.y1 - b.y0);
     const sc = Math.min((w - pad * 2) / bw, (h - pad * 2) / bh);
@@ -121,6 +121,22 @@ const TurtleLang = (() => {
     const lw = Math.max(2, Math.min(4, w * 0.022));
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
     let tx = 0, ty = 0, th = 0;
+    // desenho-objetivo bem clarinho ao fundo
+    if (opts.ghost) {
+      ctx.globalAlpha = 0.2;
+      opts.ghost.ops.forEach((o) => {
+        if (o.type !== 'fill') return;
+        ctx.fillStyle = o.color;
+        ctx.beginPath(); o.pts.forEach(([px, py], i) => (i ? ctx.lineTo(X(px), Y(py)) : ctx.moveTo(X(px), Y(py)))); ctx.closePath(); ctx.fill();
+      });
+      ctx.globalAlpha = 0.28; ctx.lineWidth = lw; ctx.setLineDash([lw * 1.5, lw * 2]);
+      opts.ghost.ops.forEach((o) => {
+        if (o.type !== 'move') return;
+        ctx.strokeStyle = o.color;
+        ctx.beginPath(); ctx.moveTo(X(o.x0), Y(o.y0)); ctx.lineTo(X(o.x1), Y(o.y1)); ctx.stroke();
+      });
+      ctx.setLineDash([]); ctx.globalAlpha = 1;
+    }
     // pinturas primeiro, depois as linhas por cima
     res.ops.forEach((o) => {
       if (o.type !== 'fill' || o.t0 > time) return;
@@ -142,6 +158,22 @@ const TurtleLang = (() => {
     if (opts.turtle) drawTurtle(ctx, X(tx), Y(ty), th, Math.max(7, Math.min(12, w * 0.06)));
   }
 
+  // Dois códigos fazem o mesmo desenho? (mesmas linhas, cores e pinturas, em qualquer ordem)
+  function signature(res) {
+    const r = (n) => Math.round(n);
+    const segs = res.ops.filter((o) => o.type === 'move' && Math.hypot(o.x1 - o.x0, o.y1 - o.y0) > 0.5).map((o) => {
+      const a = [r(o.x0), r(o.y0)], b = [r(o.x1), r(o.y1)];
+      const [p1, p2] = a[0] < b[0] || (a[0] === b[0] && a[1] <= b[1]) ? [a, b] : [b, a];
+      return `${p1}-${p2}-${o.color}`;
+    });
+    const fills = res.ops.filter((o) => o.type === 'fill').map((o) => o.color + ':' + o.pts.map(([x, y]) => `${r(x)},${r(y)}`).sort().join(';'));
+    return [...new Set(segs)].sort().join('|') + '#' + fills.sort().join('|');
+  }
+  function same(codeA, codeB) {
+    const a = run(codeA), b = run(codeB);
+    return !a.error && !b.error && signature(a) === signature(b);
+  }
+
   // Linha do código que está sendo executada no instante `time`
   function lineAt(res, time) {
     let line = -1;
@@ -160,5 +192,5 @@ const TurtleLang = (() => {
     })).map((l, i) => `<span class="ln" data-line="${i}">${l || ' '}</span>`).join('');
   }
 
-  return { run, render, union, lineAt, highlight, COLORS };
+  return { run, render, union, lineAt, highlight, same, COLORS };
 })();
