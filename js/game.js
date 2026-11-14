@@ -807,6 +807,7 @@ const Game = (() => {
     try { save = JSON.parse(localStorage.getItem('tr-save') || '{}'); } catch (e) { /* sem storage */ }
     const record = st.score > (save.best || 0);
     save.best = Math.max(save.best || 0, st.score);
+    if (record) save.bestLaps = st.lap - 1;
     save.stars = (save.stars || 0) + st.stars;
     try { localStorage.setItem('tr-save', JSON.stringify(save)); } catch (e) { /* sem storage */ }
     $('best-score').textContent = save.best;

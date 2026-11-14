@@ -44,6 +44,15 @@ const Ranking = (() => {
     body: JSON.stringify({ p_nome: p.nome, p_turma: p.turma, p_pontos: pontos, p_voltas: voltas }),
   });
 
+  // Envia o recorde guardado no aparelho. O banco só troca se for maior que o que já tem,
+  // então isto também recupera recordes que não chegaram ao ranking (sem internet, por exemplo).
+  async function sync(p, pontos = 0, voltas = 0) {
+    let best = 0, laps = 0;
+    try { const d = JSON.parse(localStorage.getItem('tr-save')) || {}; best = d.best || 0; laps = d.bestLaps || 0; } catch (e) { /* sem storage */ }
+    if (pontos >= best) { best = pontos; laps = voltas; }
+    if (best > 0) await send(p, Math.min(best, 1000000), Math.min(laps, 1000));
+  }
+
   // ---------- Linhas do ranking ----------
   function row(r, pos, me) {
     const li = document.createElement('li');
@@ -51,7 +60,7 @@ const Ranking = (() => {
     li.innerHTML = '<span class="rank-pos"></span><span class="rank-name"></span><span class="rank-laps"></span><b class="rank-pts"></b>';
     li.children[0].textContent = pos + 'º';
     li.children[1].textContent = r.nome + (me ? ' (você)' : '');
-    li.children[2].textContent = r.voltas === 1 ? '1 volta' : `${r.voltas} voltas`;
+    li.children[2].textContent = !r.voltas ? '' : r.voltas === 1 ? '1 volta' : `${r.voltas} voltas`;
     li.children[3].textContent = r.pontos;
     return li;
   }
@@ -66,6 +75,7 @@ const Ranking = (() => {
     msg.textContent = 'Carregando...';
     const asked = turma;
     try {
+      if (p) { try { await sync(p); } catch (e) { /* mostra a lista mesmo assim */ } }
       const rows = await list(asked);
       if (asked !== turma) return;                       // a criança já trocou de turma
       if (!rows.length) { msg.textContent = `Ninguém da turma ${asked} correu ainda. Seja o primeiro!`; return; }
@@ -149,7 +159,8 @@ const Ranking = (() => {
     note.textContent = 'Enviando para o ranking...';
     box.appendChild(note);
     try {
-      if (pontos > 0) await send(p, pontos, voltas);
+      let sent = true;
+      try { await sync(p, pontos, voltas); } catch (e) { sent = false; }
       const rows = await list(p.turma);
       if (!box.contains(note)) return;                   // a criança já saiu deste cartão
       const mine = rows.findIndex((r) => same(r.nome, p.nome));
@@ -159,8 +170,9 @@ const Ranking = (() => {
       rows.slice(0, 5).forEach((r, i) => ol.appendChild(row(r, i + 1, i === mine)));
       if (mine >= 5) ol.appendChild(row(rows[mine], mine + 1, true));
       box.appendChild(ol);
+      if (!sent) note.textContent = 'Não foi possível enviar sua pontuação agora. Ela ficou salva neste aparelho e será enviada na próxima vez.';
     } catch (e) {
-      note.textContent = 'Sem conexão com o ranking. Sua pontuação ficou salva só neste aparelho.';
+      note.textContent = 'Sem conexão com o ranking. Sua pontuação ficou salva neste aparelho e será enviada na próxima vez.';
     }
   }
 

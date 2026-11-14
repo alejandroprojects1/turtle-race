@@ -7,11 +7,17 @@ create table if not exists public.ranking (
   nome          text not null check (char_length(nome) between 3 and 40),
   nome_chave    text not null,                       -- nome em minúsculas, para não duplicar o aluno
   turma         text not null check (turma in ('5A', '5B')),
-  pontos        integer not null check (pontos between 0 and 20000),
-  voltas        integer not null check (voltas between 0 and 100),
+  pontos        integer not null check (pontos between 0 and 1000000),
+  voltas        integer not null check (voltas between 0 and 1000),
   atualizado_em timestamptz not null default now(),
   unique (turma, nome_chave)
 );
+
+-- Limites de pontos e voltas (atualiza tabelas criadas com o limite antigo de 20.000 pontos).
+alter table public.ranking drop constraint if exists ranking_pontos_check;
+alter table public.ranking add constraint ranking_pontos_check check (pontos between 0 and 1000000);
+alter table public.ranking drop constraint if exists ranking_voltas_check;
+alter table public.ranking add constraint ranking_voltas_check check (voltas between 0 and 1000);
 
 -- Segurança: o jogo (chave "anon") só pode LER o ranking.
 -- Ninguém insere, altera ou apaga direto na tabela; só pela função abaixo.
@@ -41,10 +47,10 @@ begin
   if p_turma is null or p_turma not in ('5A', '5B') then
     raise exception 'turma invalida';
   end if;
-  if p_pontos is null or p_pontos < 0 or p_pontos > 20000 then
+  if p_pontos is null or p_pontos < 0 or p_pontos > 1000000 then
     raise exception 'pontuacao invalida';
   end if;
-  if p_voltas is null or p_voltas < 0 or p_voltas > 100 then
+  if p_voltas is null or p_voltas < 0 or p_voltas > 1000 then
     raise exception 'voltas invalidas';
   end if;
 
