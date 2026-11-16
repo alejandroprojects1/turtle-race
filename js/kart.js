@@ -14,6 +14,7 @@ function drawKartRear(ctx, w, opt = {}) {
     return g;
   };
 
+  const detail = u > 26;          // texturas finas só quando o kart está grande na tela
   ctx.save();
   ctx.lineJoin = 'round'; ctx.lineCap = 'round';
 
@@ -51,18 +52,53 @@ function drawKartRear(ctx, w, opt = {}) {
       const y = -0.33 + (i + roll) * 0.055;
       ctx.beginPath(); ctx.moveTo(x * u, y * u); ctx.lineTo((x + 0.115) * u, (y + 0.02) * u); ctx.lineTo((x + 0.23) * u, y * u); ctx.stroke();
     }
+    if (detail) {
+      // borracha: friso no meio, ombros arredondados e brilho no alto do pneu
+      ctx.fillStyle = 'rgba(0,0,0,.35)';
+      ctx.fillRect((x + 0.105) * u, -0.33 * u, 0.02 * u, 0.33 * u);
+      ctx.fillStyle = lin(x, 0, x + 0.23, 0, [[0, 'rgba(0,0,0,.55)'], [0.16, 'rgba(0,0,0,0)'], [0.84, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,.55)']]);
+      ctx.fillRect(x * u, -0.33 * u, 0.23 * u, 0.33 * u);
+      ctx.fillStyle = lin(0, -0.33, 0, 0, [[0, 'rgba(255,255,255,.2)'], [0.22, 'rgba(255,255,255,0)'], [0.75, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,.5)']]);
+      ctx.fillRect(x * u, -0.33 * u, 0.23 * u, 0.33 * u);
+    }
     ctx.restore();
   });
 
   // motor e para-choque
   ctx.fillStyle = lin(0, -0.28, 0, -0.04, [[0, '#4a4958'], [1, '#22212c']]);
   rr(-0.29, -0.28, 0.58, 0.24, 0.04); ctx.fill();
-  ctx.fillStyle = '#17161f';
+  if (detail) {
+    // aletas do motor
+    ctx.strokeStyle = 'rgba(0,0,0,.35)'; ctx.lineWidth = 0.008 * u;
+    ctx.beginPath();
+    for (let i = 0; i < 4; i++) { const y = -0.255 + i * 0.028; ctx.moveTo(-0.26 * u, y * u); ctx.lineTo(0.26 * u, y * u); }
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,.12)';
+    ctx.beginPath();
+    for (let i = 0; i < 4; i++) { const y = -0.247 + i * 0.028; ctx.moveTo(-0.26 * u, y * u); ctx.lineTo(0.26 * u, y * u); }
+    ctx.stroke();
+  }
+  // para-choque
+  ctx.fillStyle = lin(0, -0.1, 0, -0.025, [[0, '#3a3947'], [0.35, '#1b1a23'], [1, '#0f0e15']]);
   rr(-0.33, -0.1, 0.66, 0.075, 0.03); ctx.fill();
-  // canos de escape
+  if (detail) {
+    ctx.fillStyle = 'rgba(255,255,255,.16)';
+    rr(-0.31, -0.094, 0.62, 0.012, 0.006); ctx.fill();
+    // parafusos
+    ctx.fillStyle = '#8a8d9e';
+    [-0.27, 0.27].forEach((x) => { ctx.beginPath(); ctx.arc(x * u, -0.06 * u, 0.011 * u, 0, Math.PI * 2); ctx.fill(); });
+  }
+  // canos de escape (metal cromado)
   [-0.11, 0.11].forEach((x) => {
-    ctx.fillStyle = '#b9bccb'; ctx.beginPath(); ctx.arc(x * u, -0.14 * u, 0.05 * u, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#17161f'; ctx.beginPath(); ctx.arc(x * u, -0.14 * u, 0.032 * u, 0, Math.PI * 2); ctx.fill();
+    const cg = ctx.createLinearGradient((x - 0.05) * u, -0.19 * u, (x + 0.05) * u, -0.09 * u);
+    cg.addColorStop(0, '#f4f6fb'); cg.addColorStop(0.45, '#9ea3b5'); cg.addColorStop(1, '#5d6172');
+    ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(x * u, -0.14 * u, 0.05 * u, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#0d0c12'; ctx.beginPath(); ctx.arc(x * u, -0.14 * u, 0.032 * u, 0, Math.PI * 2); ctx.fill();
+    if (detail) {
+      ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.lineWidth = 0.008 * u;
+      ctx.beginPath(); ctx.arc(x * u, -0.14 * u, 0.042 * u, Math.PI * 1.05, Math.PI * 1.55); ctx.stroke();
+      ctx.fillStyle = 'rgba(255,140,60,.25)'; ctx.beginPath(); ctx.arc(x * u, -0.135 * u, 0.02 * u, 0, Math.PI * 2); ctx.fill();
+    }
   });
 
   // carroceria
@@ -79,13 +115,35 @@ function drawKartRear(ctx, w, opt = {}) {
   ctx.fillStyle = '#f4f6ff';
   ctx.fillRect(-0.055 * u, -0.47 * u, 0.04 * u, 0.27 * u);
   ctx.fillRect(0.015 * u, -0.47 * u, 0.04 * u, 0.27 * u);
-  // lanternas
+  // pintura brilhante: reflexo em cima, sombra embaixo e nas laterais (só dentro da carroceria)
+  ctx.save(); ctx.clip();
+  ctx.fillStyle = lin(-0.33, 0, 0.33, 0, [[0, 'rgba(0,0,0,.32)'], [0.2, 'rgba(0,0,0,0)'], [0.8, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,.32)']]);
+  ctx.fillRect(-0.34 * u, -0.48 * u, 0.68 * u, 0.3 * u);
+  ctx.fillStyle = lin(0, -0.26, 0, -0.2, [[0, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,.35)']]);
+  ctx.fillRect(-0.34 * u, -0.26 * u, 0.68 * u, 0.07 * u);
+  ctx.fillStyle = 'rgba(255,255,255,.3)';
+  ctx.beginPath(); ctx.ellipse(-0.02 * u, -0.455 * u, 0.25 * u, 0.028 * u, 0, 0, Math.PI * 2); ctx.fill();
+  if (detail) {
+    ctx.fillStyle = 'rgba(255,255,255,.2)';
+    ctx.beginPath(); ctx.moveTo(-0.27 * u, -0.43 * u); ctx.lineTo(-0.2 * u, -0.43 * u); ctx.lineTo(-0.25 * u, -0.24 * u); ctx.lineTo(-0.3 * u, -0.24 * u); ctx.closePath(); ctx.fill();
+    // linha de emenda da carenagem
+    ctx.strokeStyle = 'rgba(0,0,0,.28)'; ctx.lineWidth = 0.007 * u;
+    ctx.beginPath(); ctx.moveTo(-0.31 * u, -0.27 * u); ctx.lineTo(0.31 * u, -0.27 * u); ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,.14)';
+    ctx.beginPath(); ctx.moveTo(-0.31 * u, -0.262 * u); ctx.lineTo(0.31 * u, -0.262 * u); ctx.stroke();
+  }
+  ctx.restore();
+  // lanternas com miolo aceso
   [-1, 1].forEach((sd) => {
-    ctx.fillStyle = '#ffd24a'; ctx.shadowColor = '#ffb020'; ctx.shadowBlur = 0.04 * u;
+    ctx.fillStyle = '#ffb020'; ctx.shadowColor = '#ffb020'; ctx.shadowBlur = 0.05 * u;
     rr(sd * 0.235 - 0.045, -0.3, 0.09, 0.035, 0.015); ctx.fill();
     ctx.shadowBlur = 0;
+    ctx.fillStyle = '#fff3b8';
+    rr(sd * 0.235 - 0.03, -0.293, 0.06, 0.016, 0.008); ctx.fill();
   });
   // número
+  ctx.fillStyle = 'rgba(0,0,0,.3)';
+  ctx.beginPath(); ctx.arc(0.006 * u, -0.325 * u, 0.076 * u, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = '#f4f6ff'; ctx.strokeStyle = '#17161f'; ctx.lineWidth = 0.014 * u;
   ctx.beginPath(); ctx.arc(0, -0.335 * u, 0.072 * u, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
   ctx.fillStyle = '#17161f';
@@ -95,6 +153,12 @@ function drawKartRear(ctx, w, opt = {}) {
   // encosto do banco
   ctx.fillStyle = lin(0, -0.62, 0, -0.42, [[0, '#4a4958'], [1, '#2a2935']]);
   rr(-0.2, -0.62, 0.4, 0.2, 0.06); ctx.fill();
+  if (detail) {
+    // costura do estofado
+    ctx.strokeStyle = 'rgba(255,255,255,.14)'; ctx.lineWidth = 0.006 * u; ctx.setLineDash([0.015 * u, 0.012 * u]);
+    rr(-0.18, -0.6, 0.36, 0.16, 0.045); ctx.stroke();
+    ctx.setLineDash([]);
+  }
 
   // braços
   [-1, 1].forEach((sd) => {
@@ -124,9 +188,22 @@ function drawKartRear(ctx, w, opt = {}) {
   rr(-0.44, -0.6, 0.88, 0.085, 0.03); ctx.fill();
   ctx.fillStyle = '#f4f6ff';
   [-0.36, -0.31, 0.27, 0.32].forEach((x) => ctx.fillRect(x * u, -0.6 * u, 0.03 * u, 0.085 * u));
-  ctx.fillStyle = bodyDark;
-  rr(-0.47, -0.64, 0.05, 0.15, 0.015); ctx.fill();
-  rr(0.42, -0.64, 0.05, 0.15, 0.015); ctx.fill();
+  // brilho por cima e sombra por baixo da asa
+  ctx.fillStyle = 'rgba(255,255,255,.38)';
+  rr(-0.42, -0.594, 0.84, 0.014, 0.007); ctx.fill();
+  ctx.fillStyle = 'rgba(0,0,0,.25)';
+  rr(-0.43, -0.535, 0.86, 0.02, 0.01); ctx.fill();
+  // placas laterais
+  [-0.47, 0.42].forEach((x) => {
+    ctx.fillStyle = lin(x, 0, x + 0.05, 0, [[0, body], [1, bodyDark]]);
+    rr(x, -0.64, 0.05, 0.15, 0.015); ctx.fill();
+    if (detail) {
+      ctx.fillStyle = 'rgba(255,255,255,.3)';
+      rr(x + 0.006, -0.632, 0.012, 0.134, 0.006); ctx.fill();
+      ctx.fillStyle = 'rgba(20,20,28,.6)';
+      [-0.6, -0.53].forEach((y) => { ctx.beginPath(); ctx.arc((x + 0.03) * u, y * u, 0.007 * u, 0, Math.PI * 2); ctx.fill(); });
+    }
+  });
 
   // pescoço
   ctx.fillStyle = skin;
