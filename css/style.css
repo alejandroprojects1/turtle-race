@@ -1401,3 +1401,8 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   .p1 .podium-base, .p2 .podium-base, .p3 .podium-base { height: 28px; font-size: 18px; border-radius: 12px; }
   #rank-screen .train-sub { margin: 8px 0; }
 }
+/* pontuações muito grandes: o número encolhe em vez de estourar a linha */
+.rank-pts { min-width: 0; white-space: nowrap; }
+.rank-row .rank-name { flex: 1 1 40%; }
+.podium-pts { max-width: 100%; font-size: clamp(13px, 4.2vmin, 19px); white-space: nowrap; }
+@media (max-width: 380px) { #rank-screen .rank-laps { display: none; } }

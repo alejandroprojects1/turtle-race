@@ -2,6 +2,8 @@
 const Ranking = (() => {
   const $ = (id) => document.getElementById(id);
   const TURMAS = ['5A', '5B'];
+  const MAX_PONTOS = 999999999999;            // mesmo limite do banco (supabase/ranking.sql)
+  const fmt = (n) => Number(n).toLocaleString('pt-BR');
   const screen = $('rank-screen');
   let turma = TURMAS[0], afterProfile = null, pickTurma = '';
 
@@ -50,7 +52,7 @@ const Ranking = (() => {
     let best = 0, laps = 0;
     try { const d = JSON.parse(localStorage.getItem('tr-save')) || {}; best = d.best || 0; laps = d.bestLaps || 0; } catch (e) { /* sem storage */ }
     if (pontos >= best) { best = pontos; laps = voltas; }
-    if (best > 0) await send(p, Math.min(best, 1000000), Math.min(laps, 1000));
+    if (best > 0) await send(p, Math.min(Math.floor(best), MAX_PONTOS), Math.min(laps, 100000));
   }
 
   // ---------- Linhas do ranking ----------
@@ -74,7 +76,7 @@ const Ranking = (() => {
     el.children[0].textContent = pos === 1 ? '👑' : pos === 2 ? '🥈' : '🥉';
     el.insertBefore(avatar(r.nome), el.children[1]);
     el.querySelector('.podium-name').textContent = r.nome + (me ? ' (você)' : '');
-    el.querySelector('.podium-pts').textContent = r.pontos;
+    el.querySelector('.podium-pts').textContent = fmt(r.pontos);
     el.querySelector('.podium-base').textContent = pos + 'º';
     return el;
   }
@@ -86,7 +88,7 @@ const Ranking = (() => {
     li.children[0].textContent = pos + 'º';
     li.children[1].textContent = r.nome + (me ? ' (você)' : '');
     li.children[2].textContent = !r.voltas ? '' : r.voltas === 1 ? '1 volta' : `${r.voltas} voltas`;
-    li.children[3].textContent = r.pontos;
+    li.children[3].textContent = fmt(r.pontos);
     li.insertBefore(avatar(r.nome), li.children[1]);
     return li;
   }
