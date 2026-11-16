@@ -83,17 +83,23 @@
             <span class="btn-label"><b>Corrida</b><small>Dê voltas e responda</small></span>
             <span class="btn-go"><svg viewBox="0 0 24 24"><path d="M8 5.500v13l11-6.500z"/></svg></span>
           </button>
-          <button class="btn btn-glass" data-action="train">
-            <span class="btn-ico">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.500C10 5 7 4.5 3.5 5v13c3.5-.500 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.500V5C17 4.5 14 5 12 6.500zM12 6.500v13"/></svg>
-            </span>
-            <span class="btn-label"><b>Treino</b><small>Pratique sem pressa</small></span>
-            <svg class="btn-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
-          </button>
-          <div class="menu-row">
-            <button class="btn btn-glass btn-small" data-action="ranking"><span class="btn-label"><b>Ranking</b></span></button>
-            <button class="btn btn-glass btn-small" data-action="garage"><span class="btn-label"><b>Garagem</b></span></button>
-            <button class="btn btn-glass btn-small" data-action="help"><span class="btn-label"><b>Como jogar</b></span></button>
+          <div class="menu-grid">
+            <button class="btn tile t-train" data-action="train">
+              <span class="tile-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5zM12 6.5v13"/></svg></span>
+              <b>Treino</b><small>Sem pressa</small>
+            </button>
+            <button class="btn tile t-rank" data-action="ranking">
+              <span class="tile-ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 4h6v16H9zM3 11h5v9H3zM16 14h5v6h-5z"/></svg></span>
+              <b>Ranking</b><small>Sua turma</small>
+            </button>
+            <button class="btn tile t-garage" data-action="garage">
+              <span class="tile-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16l1.5-5.500A2 2 0 0 1 7.4 9h9.200a2 2 0 0 1 1.9 1.500L20 16M3 16h18v3H3zM7 19v1.500M17 19v1.5"/><circle cx="7.5" cy="16" r=".6" fill="currentColor"/><circle cx="16.5" cy="16" r=".6" fill="currentColor"/></svg></span>
+              <b>Garagem</b><small>Pinte o kart</small>
+            </button>
+            <button class="btn tile t-help" data-action="help">
+              <span class="tile-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 9.500a3 3 0 1 1 4.5 2.600c-.9.6-1.5 1.2-1.5 2.4"/><circle cx="12" cy="18" r=".7" fill="currentColor"/></svg></span>
+              <b>Ajuda</b><small>Como jogar</small>
+            </button>
           </div>
         </nav>
       </section>

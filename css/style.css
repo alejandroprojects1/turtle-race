@@ -1064,8 +1064,8 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .skin.locked { opacity: .6; }
 .skin.locked i { filter: grayscale(.6); }
 .number-list { display: flex; flex-wrap: wrap; gap: 8px; }
-.num { width: 42px; height: 42px; border-radius: 50%; background: #f4f6ff; color: #17161f; border: 3px solid #17161f; font-family: var(--font-title); font-weight: 900; font-size: 20px; box-shadow: 0 3px 0 rgba(0, 0, 0, .5); }
-.num.on { background: var(--gold); box-shadow: 0 0 0 3px var(--gold), 0 3px 0 rgba(0, 0, 0, .5); }
+.number-list .num { width: 42px; height: 42px; border-radius: 50%; background: #f4f6ff; color: #17161f; border: 3px solid #17161f; font-family: var(--font-title); font-weight: 900; font-size: 20px; box-shadow: 0 3px 0 rgba(0, 0, 0, .5); }
+.number-list .num.on { background: var(--gold); box-shadow: 0 0 0 3px var(--gold), 0 3px 0 rgba(0, 0, 0, .5); }
 
 @keyframes starPop { from { transform: scale(0) rotate(-40deg); } }
 @keyframes fall {
@@ -1158,4 +1158,97 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   .rank-list.small .rank-row:nth-child(n+4):not(.me) { display: none; }
   #profile-overlay .card { width: min(100%, 520px); gap: 8px; padding: 14px 18px; }
   .field { min-height: 44px; }
+}
+
+/* ==================== Tela inicial: visual novo ==================== */
+#title-screen .bg {
+  background:
+    radial-gradient(90vmax 70vmax at 12% -8%, rgba(255, 45, 61, .42), transparent 60%),
+    radial-gradient(70vmax 60vmax at 105% 8%, rgba(122, 77, 255, .38), transparent 62%),
+    radial-gradient(80vmax 60vmax at 60% 115%, rgba(40, 170, 255, .26), transparent 60%),
+    linear-gradient(170deg, #0d0b24 0%, #080916 55%, #05060d 100%);
+}
+#title-screen .aurora { opacity: .55; filter: blur(90px); }
+#title-screen .checker { opacity: .045; }
+#title-screen .grid { background-size: 64px 64px; opacity: .55; }
+#title-screen .horizon { opacity: .55; height: 1px; }
+/* granulado fino por cima do fundo, para tirar o aspecto "chapado" */
+#title-screen .vignette::after {
+  content: ""; position: absolute; inset: 0; opacity: .12; mix-blend-mode: overlay; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* barra superior: uma pílula só para recorde e estrelas */
+#title-screen .chips { gap: 0; padding: 0 4px; height: 40px; border-radius: 999px; background: rgba(14, 15, 32, .55); border: 1px solid rgba(255, 255, 255, .12); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08); align-items: center; }
+#title-screen .chips .chip { background: none; border: 0; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; height: 28px; padding: 0 12px 0 10px; }
+#title-screen .chips .chip + .chip { border-left: 1px solid rgba(255, 255, 255, .14); border-radius: 0; }
+#title-screen .icon-btn { width: 40px; height: 40px; border-radius: 50%; background: rgba(14, 15, 32, .55); border: 1px solid rgba(255, 255, 255, .12); }
+
+/* palco do kart: luz suave em vez de anel duro */
+#title-screen .r1 { border: 0; background: radial-gradient(closest-side, rgba(255, 60, 80, .38), rgba(255, 60, 80, .1) 55%, transparent 72%); box-shadow: none; }
+#title-screen .r1::after { content: ""; position: absolute; inset: 14% 8%; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .22); box-shadow: 0 0 24px rgba(255, 80, 100, .5); }
+#title-screen .hero-kart { filter: drop-shadow(0 18px 26px rgba(0, 0, 0, .45)) saturate(1.06); }
+#title-screen .hero-reflect { opacity: .18; }
+
+/* painel em cartão de vidro */
+#title-screen .panel {
+  padding: clamp(14px, 2.6vmin, 22px);
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(30, 30, 62, .55), rgba(12, 13, 28, .62));
+  border: 1px solid rgba(255, 255, 255, .12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 30px 70px -30px rgba(0, 0, 0, .9);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  backdrop-filter: blur(20px) saturate(1.2);
+}
+#title-screen .eyebrow { padding: 4px 10px; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .12); color: #cfd6f3; font-size: clamp(10px, 2.2vmin, 12px); letter-spacing: .12em; }
+#title-screen .logo { letter-spacing: -.025em; font-size: clamp(40px, 13vmin, 112px); }
+#title-screen .logo .l1 { background: linear-gradient(180deg, #ffffff 40%, #c3caea); -webkit-background-clip: text; background-clip: text; filter: none; }
+#title-screen .logo .l2 { background: linear-gradient(95deg, #ff2d3d 5%, #ff6a3d 55%, #ffc83d); -webkit-background-clip: text; background-clip: text; filter: drop-shadow(0 6px 22px rgba(255, 60, 60, .45)); }
+#title-screen .logo-strip { height: 3px; margin-top: .45em; border-radius: 3px; transform: none; opacity: 1; background: linear-gradient(90deg, #ff2d3d, #ffc83d 45%, transparent 90%); -webkit-mask-image: none; mask-image: none; }
+#title-screen .terminal { height: 40px; border-radius: 12px; background: rgba(5, 6, 14, .6); border: 1px solid rgba(255, 255, 255, .1); box-shadow: none; }
+
+/* botão principal */
+#title-screen .btn-primary {
+  min-height: 68px; border-radius: 22px;
+  background: linear-gradient(100deg, #ff2d3d 0%, #ff4b3d 50%, #ff8a3d 100%);
+  box-shadow: 0 18px 40px -14px rgba(255, 45, 61, .9), inset 0 1px 0 rgba(255, 255, 255, .5), inset 0 -3px 0 rgba(0, 0, 0, .18);
+}
+#title-screen .btn-primary .btn-ico { background: rgba(255, 255, 255, .2); border-radius: 15px; }
+
+/* quatro atalhos em grade */
+#title-screen .menu-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+#title-screen .tile {
+  --tc: #4cc9ff;
+  flex-direction: column; justify-content: center; align-items: center; gap: 5px;
+  min-height: 0; padding: 10px 4px 9px; border-radius: 18px; text-align: center; overflow: hidden;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, .03));
+  border: 1px solid rgba(255, 255, 255, .12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1);
+}
+#title-screen .tile:active { background: rgba(255, 255, 255, .14); }
+#title-screen .tile-ico { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 13px; color: var(--tc); background: color-mix(in srgb, var(--tc) 18%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tc) 40%, transparent); }
+#title-screen .tile-ico svg { width: 22px; height: 22px; }
+#title-screen .tile b { font-family: var(--font-title); font-style: italic; font-weight: 900; font-size: clamp(11px, 3vmin, 15px); text-transform: uppercase; letter-spacing: .01em; white-space: nowrap; }
+#title-screen .tile small { display: none; font-size: 11px; color: var(--muted); font-weight: 600; white-space: nowrap; }
+#title-screen .t-train { --tc: #4cc9ff; } #title-screen .t-rank { --tc: #ffc83d; } #title-screen .t-garage { --tc: #8be04e; } #title-screen .t-help { --tc: #b98bff; }
+
+@media (orientation: portrait) {
+  #title-screen .title-layout { gap: 2.4vh; align-content: end; padding-bottom: max(18px, env(safe-area-inset-bottom)); }
+  #title-screen .hero { align-self: end; }
+  #title-screen .panel { max-width: 460px; }
+  #title-screen .logo { font-size: clamp(38px, 12vw, 76px); }
+}
+@media (orientation: portrait) and (max-height: 760px) { #title-screen .terminal { display: none; } }
+@media (min-height: 780px) { #title-screen .tile small { display: block; } }
+@media (orientation: landscape) and (max-height: 500px) {
+  #title-screen .panel { padding: 12px 14px; border-radius: 22px; gap: 8px; }
+  #title-screen .btn-primary { min-height: 54px; border-radius: 18px; }
+  #title-screen .tile { padding: 6px 4px; border-radius: 14px; gap: 3px; }
+  #title-screen .tile-ico { width: 30px; height: 30px; border-radius: 10px; }
+  #title-screen .tile-ico svg { width: 18px; height: 18px; }
+  #title-screen .tile b { font-size: 11px; }
+}
+@media (orientation: portrait) {
+  #title-screen .title-layout { grid-template-rows: minmax(0, 1fr) auto; align-content: stretch; }
+  #title-screen .hero { align-self: center; }
 }
