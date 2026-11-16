@@ -379,7 +379,8 @@ const Game = (() => {
   }
 
   // ---------- Objetos na beira da pista ----------
-  function drawTree(x, base, h, kind, pal, trunk, alpha) {
+  function drawTree(x, base, h, kind, pal, trunk, alpha, seed = 0) {
+    const detail = h > 44;                 // textura só nas árvores perto da câmera
     const [mid, light, dark] = pal;
     ctx.globalAlpha = alpha;
     // sombra no chão
@@ -391,6 +392,20 @@ const Game = (() => {
     ctx.fillRect(x - tw / 2, base - h * 0.42, tw, h * 0.42);
     ctx.fillStyle = 'rgba(0,0,0,.25)';
     ctx.fillRect(x, base - h * 0.42, tw / 2, h * 0.42);
+    if (detail) {
+      // raízes e riscos da casca
+      ctx.fillStyle = trunk;
+      ctx.beginPath(); ctx.moveTo(x - tw * 0.5, base - h * 0.07); ctx.lineTo(x - tw * 1.1, base); ctx.lineTo(x + tw * 1.1, base); ctx.lineTo(x + tw * 0.5, base - h * 0.07); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,.28)'; ctx.lineWidth = Math.max(1, tw * 0.09); ctx.lineCap = 'round';
+      ctx.beginPath();
+      for (let i = 0; i < 4; i++) {
+        const bx = x - tw * 0.36 + (i / 3) * tw * 0.72, by = base - h * (0.05 + rnd(seed * 7 + i, 85) * 0.14), bl = h * (0.07 + rnd(seed * 7 + i, 86) * 0.1);
+        ctx.moveTo(bx, by); ctx.lineTo(bx + tw * 0.05, by - bl);
+      }
+      ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,.14)';
+      ctx.beginPath(); ctx.moveTo(x - tw * 0.38, base - h * 0.04); ctx.lineTo(x - tw * 0.38, base - h * 0.4); ctx.stroke();
+    }
     if (kind === 0) {
       // copa redonda
       const cy = base - h * 0.66, r = h * 0.3;
@@ -400,6 +415,23 @@ const Game = (() => {
       ctx.beginPath(); ctx.arc(x, cy, r, 0, Math.PI * 2); ctx.arc(x - r * 0.6, cy + r * 0.25, r * 0.62, 0, Math.PI * 2); ctx.arc(x + r * 0.62, cy + r * 0.2, r * 0.6, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = light;
       ctx.beginPath(); ctx.arc(x - r * 0.28, cy - r * 0.3, r * 0.52, 0, Math.PI * 2); ctx.arc(x + r * 0.3, cy - r * 0.05, r * 0.32, 0, Math.PI * 2); ctx.fill();
+      if (detail) {
+        // tufos de folhas: claros no lado da luz (em cima, à esquerda), escuros na sombra
+        for (let i = 0; i < 16; i++) {
+          const id = seed * 17 + i;
+          const a = rnd(id, 81) * Math.PI * 2, d = Math.sqrt(rnd(id, 82)) * r * 0.92;
+          const lx = x + Math.cos(a) * d * 1.2, ly = cy + r * 0.14 + Math.sin(a) * d * 0.8;
+          const lit = (ly - cy) + (lx - x) * 0.55 < -r * 0.05;
+          ctx.fillStyle = lit ? light : dark;
+          ctx.globalAlpha = alpha * (lit ? 0.6 : 0.5);
+          ctx.beginPath(); ctx.arc(lx, ly, r * (0.12 + rnd(id, 83) * 0.1), Math.PI, Math.PI * 2); ctx.fill();
+        }
+        // brilho na borda de cima e algumas folhas soltas
+        ctx.globalAlpha = alpha * 0.35;
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1, r * 0.045); ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.arc(x - r * 0.28, cy - r * 0.3, r * 0.5, Math.PI * 1.05, Math.PI * 1.5); ctx.stroke();
+        ctx.globalAlpha = alpha;
+      }
     } else {
       // pinheiro
       for (let i = 0; i < 3; i++) {
@@ -408,6 +440,29 @@ const Game = (() => {
         ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x + hw, bot); ctx.lineTo(x - hw, bot); ctx.closePath(); ctx.fill();
         ctx.fillStyle = dark;
         ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x + hw, bot); ctx.lineTo(x, bot); ctx.closePath(); ctx.fill();
+        if (detail) {
+          // pontas dos galhos na borda de baixo
+          const teeth = 6, tw2 = hw * 2 / teeth, th2 = (bot - top) * 0.12;
+          for (let j = 0; j < teeth; j++) {
+            const tx = x - hw + j * tw2;
+            ctx.fillStyle = j < teeth / 2 ? mid : dark;
+            ctx.beginPath(); ctx.moveTo(tx, bot - 0.5); ctx.lineTo(tx + tw2, bot - 0.5); ctx.lineTo(tx + tw2 * 0.5, bot + th2); ctx.closePath(); ctx.fill();
+          }
+          // luz no lado esquerdo e riscos das agulhas
+          ctx.fillStyle = light; ctx.globalAlpha = alpha * 0.45;
+          ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x - hw, bot); ctx.lineTo(x - hw * 0.62, bot); ctx.closePath(); ctx.fill();
+          ctx.globalAlpha = alpha * 0.3;
+          ctx.strokeStyle = '#06220f'; ctx.lineWidth = Math.max(1, h * 0.008); ctx.lineCap = 'round';
+          ctx.beginPath();
+          for (let j = 0; j < 7; j++) {
+            const id = seed * 23 + i * 9 + j;
+            const f = 0.3 + rnd(id, 87) * 0.65, side = rnd(id, 88) - 0.5;
+            const nx = x + side * 2 * hw * f * 0.8, ny = top + (bot - top) * f;
+            ctx.moveTo(nx, ny); ctx.lineTo(nx + Math.sign(side) * hw * 0.12, ny + (bot - top) * 0.1);
+          }
+          ctx.stroke();
+          ctx.globalAlpha = alpha;
+        }
       }
     }
     ctx.globalAlpha = 1;
@@ -420,6 +475,20 @@ const Game = (() => {
     const tx = x + lean * h * 0.3, ty = base - h;
     ctx.strokeStyle = '#a9713d'; ctx.lineCap = 'round'; ctx.lineWidth = Math.max(1.5, h * 0.06);
     ctx.beginPath(); ctx.moveTo(x, base); ctx.quadraticCurveTo(x + lean * h * 0.05, base - h * 0.55, tx, ty); ctx.stroke();
+    if (h > 40) {
+      // anéis do tronco
+      const cxp = x + lean * h * 0.05, cyp = base - h * 0.55, tw = Math.max(1.5, h * 0.06);
+      ctx.strokeStyle = 'rgba(70,40,15,.45)'; ctx.lineWidth = Math.max(1, h * 0.01);
+      ctx.beginPath();
+      for (let i = 1; i < 11; i++) {
+        const t = i / 11, u = 1 - t;
+        const rx = u * u * x + 2 * u * t * cxp + t * t * tx, ry = u * u * base + 2 * u * t * cyp + t * t * ty;
+        ctx.moveTo(rx - tw * 0.5, ry + tw * 0.12); ctx.lineTo(rx + tw * 0.5, ry - tw * 0.12);
+      }
+      ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,230,190,.25)'; ctx.lineWidth = Math.max(1, tw * 0.2);
+      ctx.beginPath(); ctx.moveTo(x - tw * 0.28, base); ctx.quadraticCurveTo(cxp - tw * 0.28, cyp, tx - tw * 0.28, ty); ctx.stroke();
+    }
     const sway = Math.sin(st.t * 1.5 + x * 0.01) * 0.06;
     for (let i = 0; i < 7; i++) {
       const a = -Math.PI + (i / 6) * Math.PI + sway;
@@ -431,6 +500,11 @@ const Game = (() => {
       ctx.quadraticCurveTo(mx, my, ex, ey);
       ctx.quadraticCurveTo(mx, my + len * 0.22, tx, ty);
       ctx.fill();
+      if (h > 40) {
+        // nervura da folha
+        ctx.strokeStyle = 'rgba(20,80,30,.55)'; ctx.lineWidth = Math.max(1, h * 0.008);
+        ctx.beginPath(); ctx.moveTo(tx, ty); ctx.quadraticCurveTo(mx, my + len * 0.1, ex, ey); ctx.stroke();
+      }
     }
     ctx.fillStyle = '#7a4a22';
     ctx.beginPath(); ctx.arc(tx - h * 0.02, ty + h * 0.03, h * 0.03, 0, Math.PI * 2); ctx.arc(tx + h * 0.03, ty + h * 0.04, h * 0.03, 0, Math.PI * 2); ctx.fill();
@@ -544,7 +618,7 @@ const Game = (() => {
           if (z < 0.9 || z > Z_FAR) continue;
           const o = { z, x: sd * (1.75 + row * 1.3 + rnd(id, 7) * 1.1), h: 1.3 + rnd(id, 9) * 1.1 + row * 0.4 };
           if (th.side === 'palms') list.push({ ...o, type: 'palm', h: o.h * 1.15, lean: rnd(id, 11) - 0.5 });
-          else list.push({ ...o, type: 'tree', kind: rnd(id, 11) < 0.68 ? 0 : 1, pal: th.greens[Math.floor(rnd(id, 13) * 3)], trunk: th.trunk });
+          else list.push({ ...o, type: 'tree', seed: id, kind: rnd(id, 11) < 0.68 ? 0 : 1, pal: th.greens[Math.floor(rnd(id, 13) * 3)], trunk: th.trunk });
         }
       });
     }
@@ -562,7 +636,7 @@ const Game = (() => {
 
   function drawObject(o) {
     const alpha = Math.min(1, (Z_FAR - o.z) / 8);
-    if (o.type === 'tree') drawTree(px(o.x, o.z), py(o.z), o.h * ps(o.z), o.kind, o.pal, o.trunk, alpha);
+    if (o.type === 'tree') drawTree(px(o.x, o.z), py(o.z), o.h * ps(o.z), o.kind, o.pal, o.trunk, alpha, o.seed);
     else if (o.type === 'palm') drawPalm(px(o.x, o.z), py(o.z), o.h * ps(o.z), o.lean, alpha);
     else if (o.type === 'building') drawBuilding(o, alpha);
     else if (o.type === 'lamp') drawLamp(o, alpha);
