@@ -289,10 +289,42 @@ const Game = (() => {
       quad(cx, y1, s1 * 1.13, cx, y2, s2 * 1.13, th.kerb === 'rainbow' ? `hsl(${(((k * 45) % 360) + 360) % 360},90%,62%)` : th.kerb[alt ? 0 : 1]);
       // asfalto
       quad(cx, y1, s1, cx, y2, s2, th.road[alt4 ? 0 : 1]);
-      // remendos e manchas no asfalto
-      if (rnd(k, 41) < 0.12) {
+      // bordas um pouco mais escuras (sujeira acumulada) e centro das faixas mais gasto
+      quad(cx - s1 * 0.9, y1, s1 * 0.1, cx - s2 * 0.9, y2, s2 * 0.1, 'rgba(0,0,0,.10)');
+      quad(cx + s1 * 0.9, y1, s1 * 0.1, cx + s2 * 0.9, y2, s2 * 0.1, 'rgba(0,0,0,.10)');
+      for (let i = 0; i < LANES; i++) {
+        const lx = -1 + (i + 0.5) * LANE_W;
+        quad(cx + lx * s1, y1, s1 * 0.2, cx + lx * s2, y2, s2 * 0.2, 'rgba(255,255,255,.035)');
+      }
+      // remendos de asfalto mais novo (retângulos escuros)
+      if (rnd(k, 41) < 0.1) {
         const lx = -0.8 + rnd(k, 42) * 1.6, pw = 0.08 + rnd(k, 43) * 0.14;
-        quad(cx + lx * s1, y1, s1 * pw, cx + lx * s2, y2, s2 * pw, 'rgba(25,27,33,.22)');
+        quad(cx + lx * s1, y1, s1 * pw, cx + lx * s2, y2, s2 * pw, 'rgba(20,22,28,.26)');
+        quad(cx + lx * s1, y1, s1 * pw, cx + lx * s1, y1 - Math.max(1, (y1 - y2) * 0.08), s1 * pw, 'rgba(255,255,255,.07)');
+      }
+      // textura: pedrinhas claras e escuras do asfalto (só perto da câmera)
+      if (z1 < 16) {
+        const fade = 1 - z1 / 16;
+        for (let j = 0; j < 26; j++) {
+          const id = k * 29 + j;
+          const gz = z1 + (z2 - z1) * rnd(id, 62), gs = ps(gz);
+          const gw = (0.012 + rnd(id, 63) * 0.022) * gs;
+          ctx.fillStyle = rnd(id, 64) < 0.5 ? `rgba(255,255,255,${0.2 * fade})` : `rgba(0,0,0,${0.28 * fade})`;
+          ctx.fillRect(cx + (-0.93 + rnd(id, 61) * 1.86) * gs - gw / 2, py(gz), gw, Math.max(1, gw * 0.32));
+        }
+      }
+      // rachaduras finas
+      if (z1 < 20 && rnd(k, 71) < 0.09) {
+        let x = -0.85 + rnd(k, 72) * 1.7;
+        ctx.strokeStyle = `rgba(15,16,20,${0.45 * (1 - z1 / 20)})`;
+        ctx.lineWidth = Math.max(1, 0.01 * s1); ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+        ctx.beginPath();
+        for (let j = 0; j <= 4; j++) {
+          const gz = z1 + (z2 - z1) * (j / 4);
+          x += (rnd(k * 5 + j, 73) - 0.5) * 0.09;
+          if (j) ctx.lineTo(px(x, gz), py(gz)); else ctx.moveTo(px(x, gz), py(gz));
+        }
+        ctx.stroke();
       }
       // linhas brancas das bordas
       quad(cx - s1 * 0.96, y1, s1 * 0.014, cx - s2 * 0.96, y2, s2 * 0.014, 'rgba(255,255,255,.9)');
@@ -319,7 +351,10 @@ const Game = (() => {
     // marcas de pneu no meio de cada faixa (do horizonte até a câmera)
     for (let i = 0; i < LANES; i++) {
       const lx = -1 + (i + 0.5) * LANE_W;
-      [-0.13, 0.13].forEach((o) => quad(px(lx + o, 0.8), py(0.8), ps(0.8) * 0.035, px(lx + o, Z_FAR), py(Z_FAR), ps(Z_FAR) * 0.035, 'rgba(30,32,38,.15)'));
+      [-0.13, 0.13].forEach((o) => {
+        quad(px(lx + o, 0.8), py(0.8), ps(0.8) * 0.04, px(lx + o, Z_FAR), py(Z_FAR), ps(Z_FAR) * 0.04, 'rgba(22,24,30,.13)');
+        quad(px(lx + o, 0.8), py(0.8), ps(0.8) * 0.018, px(lx + o, Z_FAR), py(Z_FAR), ps(Z_FAR) * 0.018, 'rgba(22,24,30,.12)');
+      });
     }
 
     // linha de chegada
