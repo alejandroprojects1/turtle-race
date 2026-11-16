@@ -54,6 +54,31 @@ const Ranking = (() => {
   }
 
   // ---------- Linhas do ranking ----------
+  // bolinha com as iniciais do aluno, numa cor que depende do nome
+  function avatar(nome) {
+    const words = tidy(nome).split(' ');
+    const el = document.createElement('span');
+    el.className = 'rank-avatar';
+    el.textContent = ((words[0] || '?')[0] + (words.length > 1 ? words[words.length - 1][0] : '')).toUpperCase();
+    let h = 0;
+    for (const ch of tidy(nome).toLowerCase()) h = (h * 31 + ch.charCodeAt(0)) % 360;
+    el.style.background = `linear-gradient(140deg, hsl(${h}, 85%, 62%), hsl(${(h + 40) % 360}, 80%, 48%))`;
+    return el;
+  }
+
+  // degrau do pódio (1º, 2º ou 3º lugar)
+  function step(r, pos, me) {
+    const el = document.createElement('div');
+    el.className = `podium-step p${pos}` + (me ? ' me' : '');
+    el.innerHTML = '<span class="podium-medal"></span><span class="podium-name"></span><b class="podium-pts"></b><span class="podium-base"></span>';
+    el.children[0].textContent = pos === 1 ? '👑' : pos === 2 ? '🥈' : '🥉';
+    el.insertBefore(avatar(r.nome), el.children[1]);
+    el.querySelector('.podium-name').textContent = r.nome + (me ? ' (você)' : '');
+    el.querySelector('.podium-pts').textContent = r.pontos;
+    el.querySelector('.podium-base').textContent = pos + 'º';
+    return el;
+  }
+
   function row(r, pos, me) {
     const li = document.createElement('li');
     li.className = 'rank-row' + (pos <= 3 ? ' top' + pos : '') + (me ? ' me' : '');
@@ -62,6 +87,7 @@ const Ranking = (() => {
     li.children[1].textContent = r.nome + (me ? ' (você)' : '');
     li.children[2].textContent = !r.voltas ? '' : r.voltas === 1 ? '1 volta' : `${r.voltas} voltas`;
     li.children[3].textContent = r.pontos;
+    li.insertBefore(avatar(r.nome), li.children[1]);
     return li;
   }
 
@@ -71,6 +97,8 @@ const Ranking = (() => {
     document.querySelectorAll('#rank-tabs button').forEach((b) => b.classList.toggle('on', b.dataset.turma === turma));
     $('rank-me').textContent = p ? `${p.nome} · ${p.turma}` : 'Escolher meu nome';
     box.innerHTML = '';
+    const podium = $('rank-podium');
+    podium.innerHTML = '';
     if (!ready()) { msg.textContent = 'O ranking ainda não foi configurado pelo professor.'; return; }
     msg.textContent = 'Carregando...';
     const asked = turma;
@@ -81,7 +109,10 @@ const Ranking = (() => {
       if (!rows.length) { msg.textContent = `Ninguém da turma ${asked} correu ainda. Seja o primeiro!`; return; }
       const mine = p && p.turma === asked ? rows.findIndex((r) => same(r.nome, p.nome)) : -1;
       msg.textContent = mine >= 0 ? `Você está em ${mine + 1}º lugar de ${rows.length}.` : `${rows.length} ${rows.length === 1 ? 'piloto' : 'pilotos'} na turma ${asked}.`;
-      rows.forEach((r, i) => box.appendChild(row(r, i + 1, i === mine)));
+      // com 3 ou mais pilotos, os três primeiros sobem ao pódio (2º, 1º, 3º) e a lista começa no 4º
+      const top = rows.length >= 3 ? 3 : 0;
+      [1, 0, 2].slice(0, top).forEach((i) => podium.appendChild(step(rows[i], i + 1, i === mine)));
+      rows.forEach((r, i) => { if (i >= top) box.appendChild(row(r, i + 1, i === mine)); });
       const el = box.querySelector('.me');
       if (el) el.scrollIntoView({ block: 'center' });
     } catch (e) {
