@@ -1252,3 +1252,87 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   #title-screen .title-layout { grid-template-rows: minmax(0, 1fr) auto; align-content: stretch; }
   #title-screen .hero { align-self: center; }
 }
+
+/* ==================== Tela inicial: cores vibrantes ==================== */
+#title-screen .bg {
+  background:
+    radial-gradient(85vmax 65vmax at 8% -6%, rgba(255, 40, 100, .85), transparent 58%),
+    radial-gradient(75vmax 60vmax at 104% 4%, rgba(130, 70, 255, .85), transparent 60%),
+    radial-gradient(70vmax 55vmax at 96% 104%, rgba(0, 200, 255, .6), transparent 58%),
+    radial-gradient(60vmax 50vmax at -6% 100%, rgba(255, 130, 30, .5), transparent 58%),
+    linear-gradient(170deg, #2a0f5c 0%, #150a3d 50%, #0a0828 100%);
+}
+#title-screen .aurora { opacity: .8; }
+#title-screen .checker { opacity: .08; }
+#title-screen .grid {
+  opacity: .9;
+  background-image:
+    linear-gradient(rgba(255, 80, 160, .75) 1.5px, transparent 1.5px),
+    linear-gradient(90deg, rgba(60, 220, 255, .6) 1.5px, transparent 1.5px);
+}
+#title-screen .horizon { opacity: 1; height: 2px; background: linear-gradient(90deg, transparent, #ff3d8b 25%, #fff 50%, #3de0ff 75%, transparent); box-shadow: 0 0 26px 4px rgba(255, 60, 140, .6); }
+#title-screen .vignette { background: radial-gradient(120% 100% at 50% 45%, transparent 62%, rgba(8, 4, 30, .55)); }
+
+#title-screen .r1 { background: radial-gradient(closest-side, rgba(255, 210, 80, .5), rgba(255, 60, 120, .32) 50%, transparent 74%); }
+#title-screen .r1::after { border-color: rgba(255, 255, 255, .5); box-shadow: 0 0 30px rgba(255, 90, 160, .9), inset 0 0 26px rgba(255, 200, 80, .45); }
+#title-screen .hero-kart { filter: drop-shadow(0 18px 26px rgba(20, 0, 60, .5)) saturate(1.18) brightness(1.04); }
+
+#title-screen .chips, #title-screen .icon-btn { background: rgba(40, 20, 100, .5); border-color: rgba(255, 255, 255, .22); }
+
+/* cartão com borda em degradê */
+#title-screen .panel {
+  border: 1.5px solid transparent;
+  background:
+    linear-gradient(180deg, rgba(58, 34, 130, .72), rgba(24, 16, 76, .78)) padding-box,
+    linear-gradient(140deg, #ff5a9a, #ffc83d 30%, #5ee0ff 65%, #a67bff) border-box;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), 0 30px 70px -28px rgba(10, 0, 50, .9), 0 0 50px -18px rgba(160, 90, 255, .7);
+}
+#title-screen .eyebrow { background: rgba(120, 255, 90, .16); border-color: rgba(140, 255, 100, .6); color: #a8ff7a; }
+#title-screen .eyebrow .dot { background: #7dff4f; box-shadow: 0 0 12px #7dff4f; }
+#title-screen .logo .l1 { background: linear-gradient(180deg, #ffffff 45%, #dfe6ff); -webkit-background-clip: text; background-clip: text; filter: drop-shadow(0 4px 0 rgba(30, 10, 90, .55)); }
+#title-screen .logo .l2 { background: linear-gradient(95deg, #ff2d6a 0%, #ff5a2a 45%, #ffd23d 100%); -webkit-background-clip: text; background-clip: text; filter: drop-shadow(0 4px 0 rgba(90, 10, 40, .5)) drop-shadow(0 0 22px rgba(255, 90, 60, .7)); }
+#title-screen .logo-strip { height: 4px; background: linear-gradient(90deg, #ff2d6a, #ffd23d 40%, #5ee0ff 75%, transparent); }
+#title-screen .terminal { background: rgba(14, 8, 50, .7); border-color: rgba(255, 255, 255, .2); }
+
+/* botão principal: degradê quente, brilho e relevo */
+#title-screen .btn-primary {
+  background: linear-gradient(100deg, #ff1f5a 0%, #ff4d2e 48%, #ffb02e 100%);
+  box-shadow: 0 6px 0 #b3123a, 0 20px 40px -10px rgba(255, 50, 80, .95), inset 0 2px 0 rgba(255, 255, 255, .6);
+  text-shadow: 0 2px 0 rgba(140, 20, 30, .45);
+}
+#title-screen .btn-primary:active { transform: translateY(4px); box-shadow: 0 2px 0 #b3123a, 0 10px 24px -10px rgba(255, 50, 80, .9), inset 0 2px 0 rgba(255, 255, 255, .6); }
+#title-screen .btn-primary::before { background: linear-gradient(180deg, rgba(255, 255, 255, .28), rgba(255, 255, 255, 0) 55%), repeating-linear-gradient(115deg, transparent 0 22px, rgba(255, 255, 255, .08) 22px 30px); }
+#title-screen .btn-primary .btn-ico { background: rgba(255, 255, 255, .28); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6); }
+#title-screen .btn-primary .btn-go { box-shadow: 0 4px 0 rgba(140, 20, 30, .35), 0 0 18px rgba(255, 255, 255, .7); }
+#title-screen .btn-primary .btn-go svg { fill: #ff1f5a; }
+#title-screen .btn-primary .btn-label small { color: #fff; opacity: .95; }
+
+/* atalhos: blocos coloridos com brilho e relevo */
+#title-screen .menu { gap: 14px; }
+#title-screen .tile {
+  --c1: #35d6ff; --c2: #2a6bff; --c3: #1a3fb3;
+  position: relative;
+  border: 0;
+  background: linear-gradient(165deg, var(--c1), var(--c2));
+  box-shadow: 0 5px 0 var(--c3), 0 14px 24px -10px var(--c2), inset 0 2px 0 rgba(255, 255, 255, .55);
+  color: #fff;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, .22);
+  transition: transform .1s, box-shadow .1s;
+}
+#title-screen .tile::before { content: ""; position: absolute; inset: 0 0 52% 0; border-radius: inherit; background: linear-gradient(180deg, rgba(255, 255, 255, .3), rgba(255, 255, 255, 0)); pointer-events: none; }
+#title-screen .tile:hover { transform: translateY(-2px); }
+#title-screen .tile:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--c3), 0 6px 14px -8px var(--c2), inset 0 2px 0 rgba(255, 255, 255, .55); background: linear-gradient(165deg, var(--c1), var(--c2)); }
+#title-screen .tile-ico { position: relative; color: #fff; background: rgba(255, 255, 255, .26); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6), 0 3px 8px rgba(0, 0, 0, .18); }
+#title-screen .tile-ico svg { filter: drop-shadow(0 1px 0 rgba(0, 0, 0, .25)); }
+#title-screen .tile b, #title-screen .tile small { position: relative; }
+#title-screen .tile small { color: rgba(255, 255, 255, .9); }
+#title-screen .t-train { --c1: #35d6ff; --c2: #2a6bff; --c3: #1a3fb3; }
+#title-screen .t-rank { --c1: #ffd23d; --c2: #ff7a1f; --c3: #b84a0a; }
+#title-screen .t-garage { --c1: #7dfa6a; --c2: #10b06a; --c3: #0a7446; }
+#title-screen .t-help { --c1: #d08bff; --c2: #7a3dff; --c3: #4b1fb3; }
+
+@media (orientation: landscape) and (max-height: 500px) {
+  #title-screen .menu { gap: 10px; }
+  #title-screen .btn-primary { box-shadow: 0 4px 0 #b3123a, 0 14px 28px -10px rgba(255, 50, 80, .95), inset 0 2px 0 rgba(255, 255, 255, .6); }
+  #title-screen .tile { box-shadow: 0 4px 0 var(--c3), 0 10px 18px -10px var(--c2), inset 0 2px 0 rgba(255, 255, 255, .55); }
+}
