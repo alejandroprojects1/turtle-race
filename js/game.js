@@ -655,6 +655,28 @@ const Game = (() => {
     }
   }
 
+  // ---------- Fumaça ----------
+  // Três desenhos de nuvem feitos uma vez só: vários gomos macios, com luz em cima e sombra embaixo.
+  const PUFFS = [0, 1, 2].map(() => {
+    const size = 96, c = document.createElement('canvas');
+    c.width = c.height = size;
+    const g = c.getContext('2d');
+    const blob = (x, y, r, rgb, a) => {
+      const gr = g.createRadialGradient(x, y, 0, x, y, r);
+      gr.addColorStop(0, `rgba(${rgb},${a})`); gr.addColorStop(0.55, `rgba(${rgb},${a * 0.55})`); gr.addColorStop(1, `rgba(${rgb},0)`);
+      g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+    };
+    const lobes = [];
+    for (let i = 0; i < 7; i++) {
+      const a = Math.random() * Math.PI * 2, d = Math.random() * size * 0.2;
+      lobes.push([size / 2 + Math.cos(a) * d, size / 2 + Math.sin(a) * d, size * (0.17 + Math.random() * 0.1)]);
+    }
+    lobes.forEach(([x, y, r]) => blob(x, y + r * 0.22, r, '150,154,166', 0.5));     // sombra por baixo
+    lobes.forEach(([x, y, r]) => blob(x, y, r * 0.95, '236,238,244', 0.75));        // corpo
+    lobes.forEach(([x, y, r]) => blob(x - r * 0.2, y - r * 0.28, r * 0.5, '255,255,255', 0.6));   // luz por cima
+    return c;
+  });
+
   // ---------- Kart ----------
   const kartX = () => (st.laneF - (LANES - 1) / 2) * LANE_W;
 
@@ -665,10 +687,15 @@ const Game = (() => {
     const steer = Math.max(-1, Math.min(1, (st.lane - st.laneF) * 2.2));
     const x = px(kartX(), Z_KART), y = py(Z_KART);
 
-    // poeira
+    // fumaça das rodas: nuvenzinhas macias que giram, crescem e somem
     st.particles.forEach((p) => {
-      ctx.fillStyle = `rgba(225,225,225,${p.a * 0.4})`;
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+      const l = p.age / p.dur;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.globalAlpha = Math.min(1, l * 7) * Math.pow(1 - l, 1.4) * 0.8;
+      ctx.drawImage(PUFFS[p.k], -p.r, -p.r, p.r * 2, p.r * 2);
+      ctx.restore();
     });
 
     ctx.save();
@@ -990,18 +1017,27 @@ const Game = (() => {
     hud.bar.style.width = (prog * 100) + '%';
     hud.kart.style.left = (prog * 100) + '%';
 
-    // poeira saindo das rodas traseiras
+    // fumaça saindo das rodas traseiras (mais forte no turbo)
     const sc = ps(Z_KART), w = LANE_W * sc * 0.86;
-    if (st.speed > 1 && Math.random() < dt * 40) {
+    if (st.speed > 1 && Math.random() < dt * (st.turbo > 0 ? 75 : 42)) {
       const sd = Math.random() < 0.5 ? -1 : 1;
       st.particles.push({
-        x: px(kartX(), Z_KART) + sd * w * 0.38, y: py(Z_KART) - w * 0.03,
-        vx: sd * w * (0.3 + Math.random() * 0.5), vy: w * (0.5 + Math.random() * 0.6),
-        r: w * 0.04, a: 1,
+        x: px(kartX(), Z_KART) + sd * w * (0.34 + Math.random() * 0.08), y: py(Z_KART) - w * 0.04,
+        vx: sd * w * (0.15 + Math.random() * 0.45), vy: w * (0.45 + Math.random() * 0.6),
+        r0: w * (0.07 + Math.random() * 0.04), r: 0, grow: w * (0.22 + Math.random() * 0.14),
+        age: 0, dur: 0.5 + Math.random() * 0.4,
+        rot: Math.random() * Math.PI * 2, spin: (Math.random() - 0.5) * 2.4, k: (Math.random() * PUFFS.length) | 0,
       });
     }
-    st.particles.forEach((p) => { p.x += p.vx * dt; p.y += p.vy * dt; p.r += w * 0.25 * dt; p.a -= dt * 2.4; });
-    st.particles = st.particles.filter((p) => p.a > 0);
+    st.particles.forEach((p) => {
+      p.age += dt;
+      const l = Math.min(1, p.age / p.dur);
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      p.vx *= 1 - Math.min(1, dt * 1.8); p.vy *= 1 - Math.min(1, dt * 1.2);     // a fumaça vai perdendo força
+      p.r = p.r0 + p.grow * (1 - (1 - l) * (1 - l));                              // cresce rápido e depois devagar
+      p.rot += p.spin * dt;
+    });
+    st.particles = st.particles.filter((p) => p.age < p.dur);
 
     Sound.engineSet(st.speed / MAX_SPEED, st.mode === 'countdown');
   }
