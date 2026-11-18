@@ -10,7 +10,7 @@ const Quiz = (() => {
   const el = {
     root: $('quiz'), prompt: $('quiz-prompt'), stage: $('quiz-stage'), code: $('quiz-code'), board: $('quiz-board'),
     options: $('quiz-options'), feedback: $('quiz-feedback'), msg: $('quiz-msg'), next: $('quiz-next'), streak: $('quiz-streak'),
-    work: $('quiz-work'), tray: $('quiz-tray'), bank: $('quiz-bank'), check: $('quiz-check'), tag: $('quiz-tag-text'), exit: $('quiz-exit'), progress: $('quiz-progress'), nextLabel: $('quiz-next').querySelector('b'),
+    work: $('quiz-work'), tray: $('quiz-tray'), bank: $('quiz-bank'), check: $('quiz-check'), timer: $('quiz-timer'), tag: $('quiz-tag-text'), exit: $('quiz-exit'), progress: $('quiz-progress'), nextLabel: $('quiz-next').querySelector('b'),
   };
   const MAX_TRIES = 2;            // em "montar" e "ordenar": depois disso a resposta é mostrada
   let cur = null, cb = null, anim = 0, seen = [];
@@ -135,6 +135,58 @@ const Quiz = (() => {
     });
   }
 
+  // mostra a linha errada riscada e a correção ao lado
+  function markFix(ln, q) {
+    ln.classList.add('fixed');
+    ln.innerHTML = `<s>${ln.innerHTML}</s> ${TurtleLang.highlight(q.fix).replace(/<\/?span class="ln"[^>]*>|<\/span>$/g, '')}`;
+  }
+
+  // ---------- Tempo para responder (modo Ultra-rápido) ----------
+  let timerRaf = 0;
+  function startTimer(total) {
+    const me = cur, bar = el.timer.firstElementChild, num = el.timer.lastElementChild;
+    let left = total, last = performance.now();
+    el.timer.style.display = 'block';
+    el.timer.classList.remove('low');
+    num.textContent = total;
+    bar.style.width = '100%';
+    const tick = (now) => {
+      if (cur !== me || me.done) return;                         // já respondeu ou fechou
+      left -= Math.min(0.1, (now - last) / 1000);                // aba escondida não conta tempo
+      last = now;
+      bar.style.width = Math.max(0, left / total * 100) + '%';
+      const s = Math.max(0, Math.ceil(left));
+      if (num.textContent !== String(s)) {
+        num.textContent = s;
+        el.timer.classList.toggle('low', s <= 3);
+        if (s <= 3 && s > 0) Sound.tick();
+      }
+      if (left <= 0) { timeUp(); return; }
+      timerRaf = requestAnimationFrame(tick);
+    };
+    timerRaf = requestAnimationFrame(tick);
+  }
+
+  // acabou o tempo: conta como erro e mostra a resposta certa
+  function timeUp() {
+    const q = cur.q;
+    cur.tries++;
+    addReview(q.id);
+    Sound.wrong();
+    if (navigator.vibrate) navigator.vibrate(120);
+    if (cb.onWrong) cb.onWrong();
+    if (cur.type === 'choice' || cur.type === 'blank') {
+      el.options.querySelectorAll('.opt').forEach((b) => { b.disabled = true; if (Number(b.dataset.i) === q.answer) b.classList.add('right'); });
+      const blank = el.code.querySelector('.blank');
+      if (blank) { blank.textContent = q.options[q.answer]; blank.classList.remove('bad'); blank.classList.add('good'); }
+    } else if (cur.type === 'bug') {
+      const ln = el.code.querySelector(`.ln[data-line="${q.answer}"]`);
+      if (ln && !ln.classList.contains('fixed')) markFix(ln, q);
+      el.code.classList.remove('pick');
+    } else if (cur.reveal) cur.reveal();
+    succeed('Tempo esgotado! Veja a resposta certa:', true);
+  }
+
   // ---------- Tipo: achar o bug ----------
   function setupBug(q) {
     el.code.classList.add('pick');
@@ -145,7 +197,7 @@ const Quiz = (() => {
         const i = Number(ln.dataset.line);
         if (i === q.answer) {
           ln.classList.add('fixed');
-          ln.innerHTML = `<s>${ln.innerHTML}</s> ${TurtleLang.highlight(q.fix).replace(/<\/?span class="ln"[^>]*>|<\/span>$/g, '')}`;
+          markFix(ln, q);
           el.code.classList.remove('pick');
           succeed('Achou o bug!');
         } else { ln.classList.add('bad'); fail(); }
@@ -251,6 +303,9 @@ const Quiz = (() => {
       else if (picture) TurtleLang.render(el.board, TurtleLang.run(picture), Infinity, {});
       else TurtleLang.render(el.board, EMPTY, 0, { turtle: true });
     });
+
+    cancelAnimationFrame(timerRaf);
+    if (info.timer && type !== 'lesson') startTimer(info.timer); else el.timer.style.display = 'none';
 
     if (type === 'choice') setupChoice(q);
     else if (type === 'blank') setupBlank(q);

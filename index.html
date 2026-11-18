@@ -114,6 +114,7 @@
   <!-- Tela da corrida -->
   <section id="game-screen" class="screen">
     <canvas id="game-canvas"></canvas>
+    <div class="ultra-fx" aria-hidden="true"></div>
 
     <div class="hud">
       <span class="chip hud-lap">Volta <b id="hud-lap">1</b></span>
@@ -166,6 +167,7 @@
         <div class="quiz-main">
           <div class="quiz-head">
             <span class="quiz-tag"><i></i><span id="quiz-tag-text">Pergunta</span></span>
+            <span class="quiz-timer" id="quiz-timer" aria-label="Tempo para responder"><i></i><b>10</b></span>
             <span class="quiz-progress" id="quiz-progress"><i></i></span>
             <span class="quiz-streak" id="quiz-streak"></span>
             <button id="quiz-exit" class="quiz-exit" aria-label="Sair do treino"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>

@@ -24,7 +24,7 @@ const Game = (() => {
   //   max: velocidade máxima · gap: espaço entre fileiras de obstáculos · items: espaço entre perguntas e itens
   const MODES = {
     normal: { lapLen: 100, base: 7, perLap: 0.08, max: 14, gap: 1, items: 1 },
-    ultra: { lapLen: 220, base: 13, perLap: 0.05, max: 22, gap: 1.35, items: 2.2 },
+    ultra: { lapLen: 300, base: 18, perLap: 0.06, max: 30, gap: 1.6, items: 3, quizTime: 10 },
   };
   let LAP_LEN = 100;             // comprimento de uma volta
   let BASE_SPEED = 7;            // velocidade da 1ª volta (unidades/s)
@@ -941,7 +941,7 @@ const Game = (() => {
   function openQuiz() {
     st.mode = 'quiz';
     Sound.engineStop(); Sound.flag();
-    Quiz.ask({ level: st.lap, streak: st.streak }, {
+    Quiz.ask({ level: st.lap, streak: st.streak, timer: MODES[modeName].quizTime || 0 }, {
       onWrong() {
         st.streak = 0; st.turboFill = 0;
         st.time = Math.max(0, st.time - HIT_PENALTY);
