@@ -1406,3 +1406,46 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .rank-row .rank-name { flex: 1 1 40%; }
 .podium-pts { max-width: 100%; font-size: clamp(13px, 4.2vmin, 19px); white-space: nowrap; }
 @media (max-width: 380px) { #rank-screen .rank-laps { display: none; } }
+
+/* ==================== Modo Ultra-rápido ==================== */
+#title-screen .btn-ultra {
+  position: relative; overflow: hidden;
+  min-height: 56px; border-radius: 20px; color: #fff;
+  background: linear-gradient(100deg, #12d6ff 0%, #7a3dff 50%, #ff2fd6 100%);
+  box-shadow: 0 5px 0 #4b1fb3, 0 16px 34px -12px rgba(140, 70, 255, .95), inset 0 2px 0 rgba(255, 255, 255, .55);
+  text-shadow: 0 2px 0 rgba(40, 10, 100, .45);
+}
+#title-screen .btn-ultra::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .28), rgba(255, 255, 255, 0) 55%), repeating-linear-gradient(115deg, transparent 0 14px, rgba(255, 255, 255, .09) 14px 18px);
+}
+#title-screen .btn-ultra::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, .45) 50%, transparent 70%);
+  transform: translateX(-100%); animation: shine 2.2s ease-in-out infinite .8s;
+}
+#title-screen .btn-ultra > * { position: relative; z-index: 1; }
+#title-screen .btn-ultra:active { transform: translateY(4px); box-shadow: 0 1px 0 #4b1fb3, 0 8px 18px -10px rgba(140, 70, 255, .9), inset 0 2px 0 rgba(255, 255, 255, .55); }
+#title-screen .btn-ultra .btn-ico { width: 40px; height: 40px; border-radius: 13px; background: rgba(255, 255, 255, .25); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6); color: #fff36b; }
+#title-screen .btn-ultra .btn-ico svg { width: 24px; height: 24px; filter: drop-shadow(0 0 6px rgba(255, 243, 107, .9)); }
+#title-screen .btn-ultra .btn-label small { color: #fff; opacity: .95; }
+#title-screen .btn-ultra .btn-go { width: 36px; height: 36px; box-shadow: 0 4px 0 rgba(40, 10, 100, .35), 0 0 16px rgba(255, 255, 255, .7); animation: none; }
+#title-screen .btn-ultra .btn-go svg { width: 17px; height: 17px; fill: #7a3dff; }
+
+/* espaço para o botão novo */
+@media (orientation: portrait) { #title-screen .hero { width: min(86vw, 480px, 34vh); } }
+@media (orientation: portrait) and (max-height: 700px) { #title-screen .btn-ultra .btn-label small, #title-screen .btn-primary .btn-label small { display: none; } }
+@media (orientation: landscape) and (max-height: 500px) {
+  #title-screen .eyebrow { display: none; }
+  #title-screen .btn-primary { min-height: 48px; }
+  #title-screen .btn-ultra { min-height: 44px; border-radius: 16px; }
+  #title-screen .btn-ultra .btn-ico { width: 32px; height: 32px; border-radius: 10px; }
+  #title-screen .btn-label small { display: none; }
+  #title-screen .menu { gap: 9px; }
+}
+
+/* selo ULTRA no placar da corrida */
+#game-screen.ultra .hud-lap { background: linear-gradient(100deg, rgba(18, 214, 255, .55), rgba(122, 61, 255, .6), rgba(255, 47, 214, .55)); border-color: rgba(255, 255, 255, .35); }
+#game-screen.ultra .hud-lap::after { content: "ULTRA"; margin-left: 6px; padding: 1px 6px; border-radius: 6px; background: #fff36b; color: #3a0a6e; font-family: var(--font-title); font-style: italic; font-weight: 900; font-size: 11px; letter-spacing: .04em; }
+#title-screen .btn-ultra .btn-label b { white-space: nowrap; }
+@media (max-width: 360px) { #title-screen .btn-ultra .btn-label b { font-size: 17px; } }

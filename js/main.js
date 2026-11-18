@@ -107,9 +107,10 @@
       if (btn.dataset.action === 'ranking') { Sound.ensure(); Sound.click(); Ranking.open(); return; }
       if (btn.dataset.action === 'garage') { Sound.ensure(); Sound.click(); Garage.open(); return; }
       if (btn.dataset.action === 'help') { Sound.ensure(); Sound.click(); Help.show(); return; }
+      if (btn.dataset.action === 'ultra') { Sound.ensure(); Sound.turbo(); Game.start('ultra'); return; }
       if (btn.dataset.action === 'race') {
         Sound.ensure();
-        Ranking.ensureProfile(() => Game.start());
+        Ranking.ensureProfile(() => Game.start('normal'));
       } else {
         Sound.ensure();
         Sound.click();

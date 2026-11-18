@@ -18,10 +18,20 @@ const Game = (() => {
   const Z_KART = 1.4;            // distância do kart até a câmera
   const Z_FAR = 42;              // até onde a pista é desenhada
   const SEG = 0.5;               // tamanho de cada faixa pintada no chão
-  const LAP_LEN = 100;           // comprimento de uma volta
-  const BASE_SPEED = 7;          // velocidade da 1ª volta (unidades/s)
-  const SPEED_PER_LAP = 0.08;    // cada volta fica 8% mais rápida
-  const MAX_SPEED = 14;
+  // Modos de jogo. O "normal" usa exatamente os números de sempre;
+  // o "ultra" é o mundo Neon do botão Ultra-rápido.
+  //   lapLen: comprimento da volta · base: velocidade inicial · perLap: aumento por volta
+  //   max: velocidade máxima · gap: espaço entre fileiras de obstáculos · items: espaço entre perguntas e itens
+  const MODES = {
+    normal: { lapLen: 100, base: 7, perLap: 0.08, max: 14, gap: 1, items: 1 },
+    ultra: { lapLen: 220, base: 13, perLap: 0.05, max: 22, gap: 1.35, items: 2.2 },
+  };
+  let LAP_LEN = 100;             // comprimento de uma volta
+  let BASE_SPEED = 7;            // velocidade da 1ª volta (unidades/s)
+  let SPEED_PER_LAP = 0.08;      // cada volta fica 8% mais rápida
+  let MAX_SPEED = 14;
+  let GAP = 1, ITEMS = 1;
+  let modeName = 'normal';
   const START_TIME = 60;         // segundos no começo da corrida
   const CLOCK_BONUS = 5;         // segundos que o relógio dá
   const HIT_PENALTY = 3;         // segundos perdidos ao errar uma pergunta
@@ -44,8 +54,10 @@ const Game = (() => {
     { name: 'Arco-íris', sky: 'rainbow', grass: ['#7fe3a6', '#72d99b'], shoulder: ['#f7c6e6', '#f0b8dd'], kerb: 'rainbow', road: ['#5b5572', '#56506c'], fog: '255,228,246', side: 'trees', trunk: '#8a5a8a',
       greens: [['#ff7ab8', '#ffa6d2', '#d94f93'], ['#8a6bff', '#b39cff', '#6347d6'], ['#38c7c0', '#7fe6e0', '#1f9d97']] },
   ];
+  // mundo do modo Ultra-rápido: pista neon à noite
+  const ULTRA = { name: 'Neon', sky: 'neon', grass: ['#1c0c40', '#170a36'], shoulder: ['#2e1766', '#28145a'], kerb: ['#ff2fd6', '#2fe6ff'], road: ['#221d38', '#1f1a33'], fog: '150,50,220', side: 'neon' };
   // cenário de um ponto da pista (muda exatamente na linha de chegada)
-  const themeAt = (zWorld) => THEMES[(((Math.floor((zWorld - Z_KART) / LAP_LEN)) % THEMES.length) + THEMES.length) % THEMES.length];
+  const themeAt = (zWorld) => st.ultra ? ULTRA : THEMES[(((Math.floor((zWorld - Z_KART) / LAP_LEN)) % THEMES.length) + THEMES.length) % THEMES.length];
 
   // ---------- Medidas da tela ----------
   let W = 0, H = 0, dpr = 1, cx = 0, horizon = 0, roadH = 0, half = 0;
@@ -246,7 +258,38 @@ const Game = (() => {
     ridge(horizon, a * 0.6, 8.4, 17.1, 2.1, '#8fe0b5');
   }
 
-  const SKIES = { day: skyDay, beach: skyBeach, city: skyCity, night: skyNight, rainbow: skyRainbow };
+  function skyNeon() {
+    const g = ctx.createLinearGradient(0, 0, 0, horizon);
+    g.addColorStop(0, '#05011a'); g.addColorStop(0.5, '#25085a'); g.addColorStop(0.85, '#8a1a9e'); g.addColorStop(1, '#ff3fa8');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, horizon + 1);
+    for (let i = 0; i < 70; i++) {
+      const a = 0.3 + 0.6 * Math.abs(Math.sin(st.t * (0.6 + rnd(i, 123)) + i));
+      ctx.fillStyle = `rgba(255,255,255,${a})`;
+      ctx.fillRect(rnd(i, 121) * W, rnd(i, 122) * horizon * 0.6, 1.7, 1.7);
+    }
+    // sol listrado de "onda retrô"
+    const r = Math.min(W * 0.22, horizon * 0.55), sy = horizon - r * 0.3;
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, 0, W, horizon); ctx.clip();
+    const sg = ctx.createLinearGradient(0, sy - r, 0, sy + r);
+    sg.addColorStop(0, '#fff36b'); sg.addColorStop(0.45, '#ff9a3c'); sg.addColorStop(1, '#ff2f9e');
+    ctx.shadowColor = 'rgba(255,80,180,.9)'; ctx.shadowBlur = r * 0.7;
+    ctx.fillStyle = sg; ctx.beginPath(); ctx.arc(cx, sy, r, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = g;                                   // faixas "recortadas" com a cor do céu
+    for (let i = 0; i < 6; i++) ctx.fillRect(cx - r, sy + r * (0.02 + i * 0.16), r * 2, r * (0.02 + i * 0.022));
+    ctx.restore();
+    // montanhas escuras com contorno neon
+    const a = roadH * 0.18;
+    ridge(horizon, a * 1.15, 6.2, 13.5, 0.9, '#2b0d63');
+    ridge(horizon, a * 0.6, 9.4, 21.7, 3.1, '#170638');
+    ctx.fillStyle = 'rgba(47,230,255,.85)';
+    ctx.shadowColor = '#2fe6ff'; ctx.shadowBlur = 10;
+    ctx.fillRect(0, horizon - 1, W, 2);
+    ctx.shadowBlur = 0;
+  }
+
+  const SKIES = { day: skyDay, beach: skyBeach, city: skyCity, night: skyNight, rainbow: skyRainbow, neon: skyNeon };
   function drawSky() {
     const now = themeAt(st.dist + Z_KART);
     ctx.save();
@@ -543,12 +586,27 @@ const Game = (() => {
     ctx.strokeStyle = '#5d636e'; ctx.lineWidth = Math.max(1, 0.035 * sc); ctx.lineCap = 'round';
     ctx.beginPath(); ctx.moveTo(x, base); ctx.lineTo(x, top); ctx.lineTo(ax, top); ctx.stroke();
     if (o.glow) {
+      const lc = o.color || '255,236,160';
       const g = ctx.createRadialGradient(ax, top, 0, ax, top, 0.6 * sc);
-      g.addColorStop(0, 'rgba(255,236,160,.75)'); g.addColorStop(1, 'rgba(255,236,160,0)');
+      g.addColorStop(0, `rgba(${lc},.75)`); g.addColorStop(1, `rgba(${lc},0)`);
       ctx.fillStyle = g; ctx.beginPath(); ctx.arc(ax, top, 0.6 * sc, 0, Math.PI * 2); ctx.fill();
     }
-    ctx.fillStyle = o.glow ? '#fff3b8' : '#e8ecf2';
+    ctx.fillStyle = o.color ? `rgb(${o.color})` : o.glow ? '#fff3b8' : '#e8ecf2';
     ctx.beginPath(); ctx.ellipse(ax, top + 0.03 * sc, 0.07 * sc, 0.04 * sc, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  // pirâmide neon na beira da pista (modo Ultra-rápido)
+  function drawPylon(o, alpha) {
+    const sc = ps(o.z), base = py(o.z), x = px(o.x, o.z);
+    const w = o.w * sc, h = o.h * sc;
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = 'rgba(40,10,90,.75)';
+    ctx.beginPath(); ctx.moveTo(x - w / 2, base); ctx.lineTo(x, base - h); ctx.lineTo(x + w / 2, base); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = `rgb(${o.color})`; ctx.lineWidth = Math.max(1.5, sc * 0.03); ctx.lineJoin = 'round';
+    ctx.shadowColor = `rgb(${o.color})`; ctx.shadowBlur = Math.min(18, sc * 0.25);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
     ctx.globalAlpha = 1;
   }
 
@@ -603,6 +661,16 @@ const Game = (() => {
           const z = k * sp - st.dist;
           if (z > 0.9 && z < Z_FAR) list.push({ type: 'lamp', z, x: sd * 1.55, glow: !!th.lamps });
         }
+        if (th.side === 'neon') {
+          // postes rosa e azuis alternados, e pirâmides neon mais para fora
+          const z = k * sp - st.dist;
+          if (z > 0.9 && z < Z_FAR && k % 2 === 0) list.push({ type: 'lamp', z, x: sd * 1.55, glow: true, color: k % 4 === 0 ? '255,47,214' : '47,230,255' });
+          const id = k * 4 + (sd > 0 ? 2 : 0);
+          if (z > 0.9 && z < Z_FAR && rnd(id, 131) < 0.35) {
+            list.push({ type: 'pylon', z, x: sd * (2.6 + rnd(id, 132) * 2.2), w: 1.4 + rnd(id, 133) * 1.2, h: 1.2 + rnd(id, 134) * 1.6, color: rnd(id, 135) < 0.5 ? '255,47,214' : '47,230,255' });
+          }
+          return;
+        }
         // duas fileiras de cada lado
         for (let row = 0; row < 2; row++) {
           const id = k * 4 + (sd > 0 ? 2 : 0) + row;
@@ -640,6 +708,7 @@ const Game = (() => {
     else if (o.type === 'palm') drawPalm(px(o.x, o.z), py(o.z), o.h * ps(o.z), o.lean, alpha);
     else if (o.type === 'building') drawBuilding(o, alpha);
     else if (o.type === 'lamp') drawLamp(o, alpha);
+    else if (o.type === 'pylon') drawPylon(o, alpha);
     else if (o.type === 'gantry') drawGantry(o.z);
     else if (o.type === 'ent') {
       const e = o.e, sc = ps(o.z);
@@ -705,9 +774,9 @@ const Game = (() => {
     drawKartRear(ctx, w, { t: st.t, speed: st.turbo > 0 ? 2.2 : frac, steer, ...Skins.opts() });
     ctx.restore();
     if (st.shield) Items.bubble(ctx, x, y, w, st.t);
-    if (st.turbo > 0) {
-      // riscos de velocidade do turbo
-      ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+    if (st.turbo > 0 || st.ultra) {
+      // riscos de velocidade (turbo, e sempre no modo Ultra-rápido)
+      ctx.strokeStyle = st.turbo > 0 ? 'rgba(255,255,255,.55)' : 'rgba(150,240,255,.3)'; ctx.lineWidth = 2; ctx.lineCap = 'round';
       for (let i = 0; i < 14; i++) {
         const a = rnd(i, 111) * Math.PI * 2, r0 = Math.max(W, H) * (0.35 + ((st.t * 1.6 + rnd(i, 112)) % 1) * 0.5);
         ctx.beginPath();
@@ -748,7 +817,7 @@ const Game = (() => {
   }
 
   function spawnRow(z) {
-    const lap = Math.floor(z / LAP_LEN) + 1, inLap = z % LAP_LEN;
+    const lap = Math.floor(z / LAP_LEN) + 1 + (st.ultra ? 2 : 0), inLap = z % LAP_LEN;
     if (inLap < 5 || inLap > LAP_LEN - 4) return;              // deixa a chegada livre
     if (Math.abs(z - st.nextFlag) < 4.5 || st.ents.some((e) => e.type === 'flag' && Math.abs(z - e.z) < 4.5)) return;   // e a bandeira também
     const hasRival = st.ents.some((e) => e.type === 'rival');
@@ -766,10 +835,10 @@ const Game = (() => {
     const free = lanes[2];
     if (z >= st.nextClock) {
       st.ents.push({ type: 'clock', lane: free, laneF: free, z });
-      st.nextClock = z + 60 + Math.random() * 35;
+      st.nextClock = z + (60 + Math.random() * 35) * ITEMS;
     } else if (z >= st.nextShield) {
       st.ents.push({ type: 'shield', lane: free, laneF: free, z });
-      st.nextShield = z + 150 + Math.random() * 80;
+      st.nextShield = z + (150 + Math.random() * 80) * ITEMS;
     } else if (Math.random() < 0.55) {
       for (let j = 0; j < 3; j++) st.ents.push({ type: 'star', lane: free, laneF: free, z: z + j * 1.1 });
     }
@@ -803,13 +872,13 @@ const Game = (() => {
     while (st.nextRow < st.dist + Z_FAR) {
       spawnRow(st.nextRow);
       const lap = Math.floor(st.nextRow / LAP_LEN) + 1;
-      st.nextRow += Math.max(5.5, 10 - lap * 0.9) * (0.8 + Math.random() * 0.4);
+      st.nextRow += Math.max(5.5, 10 - lap * 0.9) * (0.8 + Math.random() * 0.4) * GAP;
     }
 
     // bandeira de pergunta
     if (st.nextFlag < st.dist + Z_FAR) {
       st.ents.push({ type: 'flag', lane: 1, laneF: 1, z: st.nextFlag });
-      let nf = st.nextFlag + 36 + Math.random() * 12;
+      let nf = st.nextFlag + (36 + Math.random() * 12) * ITEMS;
       const inLap = nf % LAP_LEN;
       if (inLap < 8) nf += 8 - inLap; else if (inLap > LAP_LEN - 8) nf += LAP_LEN - inLap + 8;   // longe da chegada
       st.nextFlag = nf;
@@ -941,12 +1010,13 @@ const Game = (() => {
     Sound.engineStop(); Sound.gameOver();
     let save = {};
     try { save = JSON.parse(localStorage.getItem('tr-save') || '{}'); } catch (e) { /* sem storage */ }
-    const record = st.score > (save.best || 0);
-    save.best = Math.max(save.best || 0, st.score);
-    if (record) save.bestLaps = st.lap - 1;
+    const key = st.ultra ? 'bestUltra' : 'best';        // o modo Ultra-rápido tem recorde próprio
+    const record = st.score > (save[key] || 0);
+    save[key] = Math.max(save[key] || 0, st.score);
+    if (record && !st.ultra) save.bestLaps = st.lap - 1;
     save.stars = (save.stars || 0) + st.stars;
     try { localStorage.setItem('tr-save', JSON.stringify(save)); } catch (e) { /* sem storage */ }
-    $('best-score').textContent = save.best;
+    $('best-score').textContent = save.best || 0;
     $('total-stars').textContent = save.stars;
     $('over-score').textContent = st.score;
     $('over-laps').textContent = st.lap - 1;
@@ -962,7 +1032,10 @@ const Game = (() => {
     });
     hud.over.classList.add('show');
     if (record || rating === 3) confetti(hud.over);
-    Ranking.afterRace(st.score, laps, $('over-rank'));
+    if (st.ultra) {
+      $('over-rank').innerHTML = '<p class="over-rank-note"></p>';
+      $('over-rank').firstChild.textContent = `Recorde Ultra-rápido neste aparelho: ${(save.bestUltra || 0).toLocaleString('pt-BR')} pontos`;
+    } else Ranking.afterRace(st.score, laps, $('over-rank'));
   }
 
   // ---------- Atualização ----------
@@ -1115,7 +1188,11 @@ const Game = (() => {
   });
 
   // ---------- Fluxo ----------
-  function start() {
+  function start(mode) {
+    if (mode) modeName = MODES[mode] ? mode : 'normal';     // "Jogar de novo" repete o último modo
+    ({ lapLen: LAP_LEN, base: BASE_SPEED, perLap: SPEED_PER_LAP, max: MAX_SPEED, gap: GAP, items: ITEMS } = MODES[modeName]);
+    st.ultra = modeName === 'ultra';
+    screen.classList.toggle('ultra', st.ultra);
     document.querySelectorAll('.screen').forEach((el) => el.classList.remove('active'));
     screen.classList.add('active');
     Object.assign(st, {
@@ -1123,9 +1200,9 @@ const Game = (() => {
       t: 0, countN: 3, countT: 0.75, particles: [],
       time: START_TIME, score: 0, stars: 0, shield: false, inv: 0, shake: 0,
       ents: [], popups: [], prevDist: 0,
-      nextFlag: 30, streak: 0, turbo: 0, skyFade: 0, skyFrom: null, pendingPit: false,
+      nextFlag: 30 * ITEMS, streak: 0, turbo: 0, skyFade: 0, skyFrom: null, pendingPit: false,
       turboFill: 0, qTotal: 0, qFirst: 0, lives: LIVES,
-      nextRow: 16, nextClock: 45 + Math.random() * 25, nextShield: 110 + Math.random() * 60,
+      nextRow: 16, nextClock: (45 + Math.random() * 25) * ITEMS, nextShield: (110 + Math.random() * 60) * ITEMS,
     });
     hud.shield.classList.remove('on');
     hud.over.classList.remove('show');
@@ -1142,6 +1219,7 @@ const Game = (() => {
     raf = requestAnimationFrame(loop);
     const go = () => {
       st.mode = 'countdown';
+      if (st.ultra) showBanner('Ultra-rápido!');
       showCount('3'); Sound.beep(false);
       Sound.engineStart();
       last = performance.now();

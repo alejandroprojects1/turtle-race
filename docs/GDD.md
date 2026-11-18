@@ -14,6 +14,7 @@ Jogo educativo para o **5º ano** aprender os conceitos básicos de **Python tur
 | Modo | Descrição |
 |---|---|
 | 🏁 **Corrida** | Modo principal: voltas na pista, obstáculos, rivais, bandeiras de pergunta e Pit Stop. |
+| ⚡ **Ultra-rápido** | Um mundo à parte (pista Neon) em que o kart já começa muito rápido. Tem as mesmas regras da Corrida (vidas, tempo, perguntas, Pit Stop), voltas mais longas e obstáculos variados desde o início. O recorde fica só no aparelho e não entra no ranking da turma. |
 | 📚 **Treino** | Pratica o conteúdo sem corrida e sem relógio, escolhendo um dos 5 temas. Cada tema começa com uma aulinha (texto curto e a tartaruga desenhando), passa por todos os exercícios e termina com os desafios de montar programa. Quem erra revê a pergunta no fim. As perguntas erradas na Corrida aparecem no cartão **Revisão**. Cada acerto vale uma estrela. |
 
 ---

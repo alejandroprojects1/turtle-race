@@ -39,7 +39,7 @@ supabase/ranking.sql  tabela e regras de segurança do ranking
 js/extras.js      Garagem (pinturas do kart), "Como jogar" e confete
 js/kart.js        desenho do kart visto por trás
 js/items.js       desenho dos obstáculos e itens
-js/game.js        corrida 3D: pista, kart e controles
+js/game.js        corrida 3D: pista, kart, controles e o modo Ultra-rápido (mundo Neon)
 js/main.js        tela inicial e menu
 assets/           imagens (tartaruga piloto)
 docs/GDD.md       documento de design do jogo
