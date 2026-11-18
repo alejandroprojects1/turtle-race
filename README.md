@@ -14,7 +14,7 @@ Abra o link do jogo (GitHub Pages) no navegador. No celular, deslize o dedo para
 4. Em alguns minutos o jogo fica disponível em `https://<usuario>.github.io/turtle-race/`.
 
 ## Ranking das turmas (Supabase)
-O ranking guarda a melhor pontuação de cada aluno das turmas 5A e 5B. Para ligar:
+O ranking guarda a melhor pontuação de cada aluno das turmas 5A e 5B, separado em Corrida e Ultra-rápido. Para ligar (ou atualizar depois de uma mudança no jogo):
 1. Crie um projeto gratuito em [supabase.com](https://supabase.com).
 2. Abra **SQL Editor**, cole o conteúdo de `supabase/ranking.sql` e clique em **Run**.
 3. Em **Project Settings → API**, copie a **Project URL** e a chave **anon public**.

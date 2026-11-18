@@ -1,4 +1,4 @@
--- Turtle Race: ranking das turmas 5A e 5B.
+-- Turtle Race: ranking das turmas 5A e 5B, separado por modo (Corrida e Ultra-rápido).
 -- Como usar: no painel do Supabase, abra "SQL Editor", cole este arquivo inteiro e clique em "Run".
 -- Pode rodar de novo sem perder os dados.
 
@@ -7,10 +7,11 @@ create table if not exists public.ranking (
   nome          text not null check (char_length(nome) between 3 and 40),
   nome_chave    text not null,                       -- nome em minúsculas, para não duplicar o aluno
   turma         text not null check (turma in ('5A', '5B')),
+  modo          text not null default 'normal' check (modo in ('normal', 'ultra')),   -- Corrida ou Ultra-rápido
   pontos        bigint not null check (pontos between 0 and 999999999999),
   voltas        integer not null check (voltas between 0 and 100000),
   atualizado_em timestamptz not null default now(),
-  unique (turma, nome_chave)
+  unique (turma, nome_chave, modo)
 );
 
 -- Limites de pontos e voltas (atualiza tabelas criadas com os limites antigos).
@@ -19,6 +20,15 @@ alter table public.ranking drop constraint if exists ranking_pontos_check;
 alter table public.ranking add constraint ranking_pontos_check check (pontos between 0 and 999999999999);
 alter table public.ranking drop constraint if exists ranking_voltas_check;
 alter table public.ranking add constraint ranking_voltas_check check (voltas between 0 and 100000);
+
+-- Ranking separado por modo (Corrida e Ultra-rápido). Atualiza tabelas criadas antes do modo Ultra:
+-- quem já está no ranking fica no modo "normal" (Corrida).
+alter table public.ranking add column if not exists modo text not null default 'normal';
+alter table public.ranking drop constraint if exists ranking_modo_check;
+alter table public.ranking add constraint ranking_modo_check check (modo in ('normal', 'ultra'));
+alter table public.ranking drop constraint if exists ranking_turma_nome_chave_key;
+alter table public.ranking drop constraint if exists ranking_turma_nome_chave_modo_key;
+alter table public.ranking add constraint ranking_turma_nome_chave_modo_key unique (turma, nome_chave, modo);
 
 -- Segurança: o jogo (chave "anon") só pode LER o ranking.
 -- Ninguém insere, altera ou apaga direto na tabela; só pela função abaixo.
@@ -35,8 +45,9 @@ grant select on public.ranking to anon, authenticated;
 -- se a nova for menor ou igual, nada muda.
 -- (remove a versão antiga, que só aceitava números até 2 bilhões)
 drop function if exists public.enviar_pontuacao(text, text, integer, integer);
+drop function if exists public.enviar_pontuacao(text, text, bigint, integer);
 
-create or replace function public.enviar_pontuacao(p_nome text, p_turma text, p_pontos bigint, p_voltas integer)
+create or replace function public.enviar_pontuacao(p_nome text, p_turma text, p_pontos bigint, p_voltas integer, p_modo text default 'normal')
 returns void
 language plpgsql
 security definer
@@ -57,10 +68,13 @@ begin
   if p_voltas is null or p_voltas < 0 or p_voltas > 100000 then
     raise exception 'voltas invalidas';
   end if;
+  if p_modo is null or p_modo not in ('normal', 'ultra') then
+    raise exception 'modo invalido';
+  end if;
 
-  insert into public.ranking (nome, nome_chave, turma, pontos, voltas)
-  values (v_nome, lower(v_nome), p_turma, p_pontos, p_voltas)
-  on conflict (turma, nome_chave) do update
+  insert into public.ranking (nome, nome_chave, turma, modo, pontos, voltas)
+  values (v_nome, lower(v_nome), p_turma, p_modo, p_pontos, p_voltas)
+  on conflict (turma, nome_chave, modo) do update
     set pontos = excluded.pontos,
         voltas = excluded.voltas,
         nome = excluded.nome,
@@ -69,10 +83,12 @@ begin
 end;
 $$;
 
-revoke all on function public.enviar_pontuacao(text, text, bigint, integer) from public;
-grant execute on function public.enviar_pontuacao(text, text, bigint, integer) to anon, authenticated;
+revoke all on function public.enviar_pontuacao(text, text, bigint, integer, text) from public;
+grant execute on function public.enviar_pontuacao(text, text, bigint, integer, text) to anon, authenticated;
 
 -- Para zerar o ranking (por exemplo, no começo de um bimestre), rode só esta linha:
 --   truncate table public.ranking;
 -- Para apagar um registro errado:
 --   delete from public.ranking where turma = '5A' and nome_chave = 'nome do aluno em minusculas';
+-- Para zerar só o ranking do Ultra-rápido:
+--   delete from public.ranking where modo = 'ultra';

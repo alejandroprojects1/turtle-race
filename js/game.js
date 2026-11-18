@@ -24,7 +24,7 @@ const Game = (() => {
   //   max: velocidade máxima · gap: espaço entre fileiras de obstáculos · items: espaço entre perguntas e itens
   const MODES = {
     normal: { lapLen: 100, base: 7, perLap: 0.08, max: 14, gap: 1, items: 1 },
-    ultra: { lapLen: 300, base: 18, perLap: 0.06, max: 30, gap: 1.6, items: 3, quizTime: 10 },
+    ultra: { lapLen: 420, base: 26, perLap: 0.06, max: 42, gap: 2.1, items: 4.2, quizTime: 10 },
   };
   let LAP_LEN = 100;             // comprimento de uma volta
   let BASE_SPEED = 7;            // velocidade da 1ª volta (unidades/s)
@@ -1013,7 +1013,7 @@ const Game = (() => {
     const key = st.ultra ? 'bestUltra' : 'best';        // o modo Ultra-rápido tem recorde próprio
     const record = st.score > (save[key] || 0);
     save[key] = Math.max(save[key] || 0, st.score);
-    if (record && !st.ultra) save.bestLaps = st.lap - 1;
+    if (record) save[st.ultra ? 'bestUltraLaps' : 'bestLaps'] = st.lap - 1;
     save.stars = (save.stars || 0) + st.stars;
     try { localStorage.setItem('tr-save', JSON.stringify(save)); } catch (e) { /* sem storage */ }
     $('best-score').textContent = save.best || 0;
@@ -1032,10 +1032,7 @@ const Game = (() => {
     });
     hud.over.classList.add('show');
     if (record || rating === 3) confetti(hud.over);
-    if (st.ultra) {
-      $('over-rank').innerHTML = '<p class="over-rank-note"></p>';
-      $('over-rank').firstChild.textContent = `Recorde Ultra-rápido neste aparelho: ${(save.bestUltra || 0).toLocaleString('pt-BR')} pontos`;
-    } else Ranking.afterRace(st.score, laps, $('over-rank'));
+    Ranking.afterRace(st.score, laps, $('over-rank'), st.ultra ? 'ultra' : 'normal');
   }
 
   // ---------- Atualização ----------

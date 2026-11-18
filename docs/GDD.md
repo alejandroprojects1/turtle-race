@@ -14,7 +14,7 @@ Jogo educativo para o **5º ano** aprender os conceitos básicos de **Python tur
 | Modo | Descrição |
 |---|---|
 | 🏁 **Corrida** | Modo principal: voltas na pista, obstáculos, rivais, bandeiras de pergunta e Pit Stop. |
-| ⚡ **Ultra-rápido** | Um mundo à parte (pista Neon) em que o kart já começa muito rápido (mais que o dobro da Corrida) e as bordas da tela piscam em rosa e azul. Tem as mesmas regras da Corrida (vidas, tempo, Pit Stop), mas cada pergunta tem **10 segundos** para ser respondida: se o tempo acabar, conta como erro (−3 s) e a resposta certa é mostrada. Voltas mais longas e obstáculos variados desde o início. O recorde fica só no aparelho e não entra no ranking da turma. |
+| ⚡ **Ultra-rápido** | Um mundo à parte (pista Neon) em que o kart já começa muito rápido (mais que o dobro da Corrida) e as bordas da tela piscam em rosa e azul. Tem as mesmas regras da Corrida (vidas, tempo, Pit Stop), mas cada pergunta tem **10 segundos** para ser respondida: se o tempo acabar, conta como erro (−3 s) e a resposta certa é mostrada. Voltas mais longas e obstáculos variados desde o início. Tem **ranking próprio por turma**, separado do ranking da Corrida. |
 | 📚 **Treino** | Pratica o conteúdo sem corrida e sem relógio, escolhendo um dos 5 temas. Cada tema começa com uma aulinha (texto curto e a tartaruga desenhando), passa por todos os exercícios e termina com os desafios de montar programa. Quem erra revê a pergunta no fim. As perguntas erradas na Corrida aparecem no cartão **Revisão**. Cada acerto vale uma estrela. |
 
 ---
@@ -100,7 +100,7 @@ As estrelas ganhas na corrida e no treino liberam **8 pinturas de kart** (vermel
 ---
 
 ## 4.1 Ranking das turmas
-Ranking online (Supabase) das turmas **5A** e **5B**, com a **melhor pontuação** de cada aluno na corrida. O aluno informa nome completo e turma uma vez; o ranking completo fica num botão da tela inicial e o pódio da turma aparece no fim de cada corrida.
+Ranking online (Supabase) das turmas **5A** e **5B**, com a **melhor pontuação** de cada aluno, separado em dois: **Corrida** e **Ultra-rápido**. O aluno informa nome completo e turma uma vez; o ranking completo fica num botão da tela inicial e o pódio da turma aparece no fim de cada corrida.
 
 ---
 

@@ -1473,3 +1473,31 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .quiz-timer b::after { content: "s"; font-size: 12px; margin-left: 1px; }
 .quiz-timer.low { border-color: #ff5a5f; animation: pulse .5s ease-in-out infinite; }
 .quiz-timer.low i { background: linear-gradient(90deg, #ff2d3d, #ff7a3d); }
+
+/* ---------- Ranking: seletor de modo ---------- */
+.rank-modes { width: min(100%, 620px); display: flex; gap: 8px; margin-top: 12px; }
+.rank-modes button {
+  flex: 1; min-height: 46px; display: flex; align-items: center; justify-content: center; gap: 8px;
+  border-radius: 16px; color: rgba(255, 255, 255, .78);
+  background: rgba(20, 10, 70, .55); border: 1.5px solid rgba(255, 255, 255, .2);
+  font-family: var(--font-title); font-style: italic; font-weight: 900; font-size: 16px; text-transform: uppercase;
+  transition: transform .1s, background .2s, color .2s;
+}
+.rank-modes button svg { width: 20px; height: 20px; flex: none; }
+.rank-modes button:active { transform: translateY(2px); }
+.rank-modes button.on[data-modo="normal"] { color: #fff; border-color: transparent; background: linear-gradient(100deg, #ff1f5a, #ff4d2e 50%, #ffb02e); box-shadow: 0 4px 0 #b3123a, inset 0 2px 0 rgba(255, 255, 255, .5); text-shadow: 0 2px 0 rgba(140, 20, 30, .4); }
+.rank-modes button.on[data-modo="ultra"] { color: #fff; border-color: transparent; background: linear-gradient(100deg, #12d6ff, #7a3dff 50%, #ff2fd6); box-shadow: 0 4px 0 #4b1fb3, 0 0 22px -4px rgba(255, 47, 214, .8), inset 0 2px 0 rgba(255, 255, 255, .5); text-shadow: 0 2px 0 rgba(40, 10, 100, .45); }
+.rank-modes button.on[data-modo="ultra"] svg { color: #fff36b; filter: drop-shadow(0 0 5px rgba(255, 243, 107, .9)); }
+#rank-screen .rank-tabs { margin-top: 10px; }
+#rank-screen.ultra {
+  background:
+    radial-gradient(80vmax 60vmax at 8% -6%, rgba(18, 214, 255, .55), transparent 58%),
+    radial-gradient(75vmax 60vmax at 104% 4%, rgba(255, 47, 214, .6), transparent 60%),
+    radial-gradient(70vmax 55vmax at 50% 110%, rgba(122, 61, 255, .7), transparent 58%),
+    linear-gradient(170deg, #12063a 0%, #0b0428 55%, #05011a 100%);
+}
+#rank-screen.ultra .rank-tabs button.on { background: linear-gradient(100deg, #12d6ff, #7a3dff 50%, #ff2fd6); box-shadow: 0 4px 0 #4b1fb3, inset 0 2px 0 rgba(255, 255, 255, .5); text-shadow: 0 2px 0 rgba(40, 10, 100, .45); }
+@media (orientation: landscape) and (max-height: 500px) {
+  .rank-modes { margin-top: 8px; }
+  .rank-modes button { min-height: 38px; font-size: 14px; }
+}

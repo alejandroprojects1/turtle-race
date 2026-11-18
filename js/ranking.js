@@ -1,11 +1,16 @@
-// Ranking das turmas (Supabase): guarda a melhor pontuação de cada aluno na corrida.
+// Ranking das turmas (Supabase): guarda a melhor pontuação de cada aluno em cada modo
+// (Corrida e Ultra-rápido).
 const Ranking = (() => {
   const $ = (id) => document.getElementById(id);
   const TURMAS = ['5A', '5B'];
   const MAX_PONTOS = 999999999999;            // mesmo limite do banco (supabase/ranking.sql)
   const fmt = (n) => Number(n).toLocaleString('pt-BR');
   const screen = $('rank-screen');
-  let turma = TURMAS[0], afterProfile = null, pickTurma = '';
+  let turma = TURMAS[0], modo = 'normal', afterProfile = null, pickTurma = '';
+  const MODOS = {
+    normal: { nome: 'Corrida', best: 'best', laps: 'bestLaps' },
+    ultra: { nome: 'Ultra-rápido', best: 'bestUltra', laps: 'bestUltraLaps' },
+  };
 
   const ready = () => !!(SUPABASE.url && SUPABASE.key);
   const tidy = (s) => String(s || '').trim().replace(/\s+/g, ' ');
@@ -40,19 +45,32 @@ const Ranking = (() => {
       return res.status === 204 ? null : res.json();
     } finally { clearTimeout(timer); }
   }
-  const list = (t) => api(`/rest/v1/ranking?select=nome,turma,pontos,voltas&turma=eq.${encodeURIComponent(t)}&order=pontos.desc,atualizado_em.asc&limit=500`);
-  const send = (p, pontos, voltas) => api('/rest/v1/rpc/enviar_pontuacao', {
+  // Lista de uma turma num modo. Se o banco ainda não tiver a coluna "modo" (SQL antigo),
+  // a Corrida continua funcionando como antes e só o Ultra-rápido fica indisponível.
+  const OLD_DB = new Error('banco sem a coluna modo');
+  async function list(t, m = 'normal') {
+    const base = `/rest/v1/ranking?select=nome,turma,pontos,voltas&turma=eq.${encodeURIComponent(t)}&order=pontos.desc,atualizado_em.asc&limit=500`;
+    try {
+      return await api(base + `&modo=eq.${m}`);
+    } catch (e) {
+      if (!/HTTP 4/.test(e.message)) throw e;
+      if (m !== 'normal') throw OLD_DB;
+      return api(base);
+    }
+  }
+  // A Corrida envia sem o campo "modo", para funcionar também com o SQL antigo.
+  const send = (p, pontos, voltas, m = 'normal') => api('/rest/v1/rpc/enviar_pontuacao', {
     method: 'POST',
-    body: JSON.stringify({ p_nome: p.nome, p_turma: p.turma, p_pontos: pontos, p_voltas: voltas }),
+    body: JSON.stringify({ p_nome: p.nome, p_turma: p.turma, p_pontos: pontos, p_voltas: voltas, ...(m === 'normal' ? {} : { p_modo: m }) }),
   });
 
   // Envia o recorde guardado no aparelho. O banco só troca se for maior que o que já tem,
   // então isto também recupera recordes que não chegaram ao ranking (sem internet, por exemplo).
-  async function sync(p, pontos = 0, voltas = 0) {
+  async function sync(p, pontos = 0, voltas = 0, m = 'normal') {
     let best = 0, laps = 0;
-    try { const d = JSON.parse(localStorage.getItem('tr-save')) || {}; best = d.best || 0; laps = d.bestLaps || 0; } catch (e) { /* sem storage */ }
+    try { const d = JSON.parse(localStorage.getItem('tr-save')) || {}; best = d[MODOS[m].best] || 0; laps = d[MODOS[m].laps] || 0; } catch (e) { /* sem storage */ }
     if (pontos >= best) { best = pontos; laps = voltas; }
-    if (best > 0) await send(p, Math.min(Math.floor(best), MAX_PONTOS), Math.min(laps, 100000));
+    if (best > 0) await send(p, Math.min(Math.floor(best), MAX_PONTOS), Math.min(laps, 100000), m);
   }
 
   // ---------- Linhas do ranking ----------
@@ -97,18 +115,23 @@ const Ranking = (() => {
   async function load() {
     const box = $('rank-list'), msg = $('rank-msg'), p = profile();
     document.querySelectorAll('#rank-tabs button').forEach((b) => b.classList.toggle('on', b.dataset.turma === turma));
+    document.querySelectorAll('#rank-modes button').forEach((b) => b.classList.toggle('on', b.dataset.modo === modo));
+    screen.classList.toggle('ultra', modo === 'ultra');
     $('rank-me').textContent = p ? `${p.nome} · ${p.turma}` : 'Escolher meu nome';
     box.innerHTML = '';
     const podium = $('rank-podium');
     podium.innerHTML = '';
     if (!ready()) { msg.textContent = 'O ranking ainda não foi configurado pelo professor.'; return; }
     msg.textContent = 'Carregando...';
-    const asked = turma;
+    const asked = turma, askedModo = modo;
     try {
-      if (p) { try { await sync(p); } catch (e) { /* mostra a lista mesmo assim */ } }
-      const rows = await list(asked);
-      if (asked !== turma) return;                       // a criança já trocou de turma
-      if (!rows.length) { msg.textContent = `Ninguém da turma ${asked} correu ainda. Seja o primeiro!`; return; }
+      if (p) { try { await sync(p, 0, 0, askedModo); } catch (e) { /* mostra a lista mesmo assim */ } }
+      const rows = await list(asked, askedModo);
+      if (asked !== turma || askedModo !== modo) return;  // a criança já trocou de turma ou de modo
+      if (!rows.length) {
+        msg.textContent = askedModo === 'ultra' ? `Ninguém da turma ${asked} correu no Ultra-rápido ainda. Seja o primeiro!` : `Ninguém da turma ${asked} correu ainda. Seja o primeiro!`;
+        return;
+      }
       const mine = p && p.turma === asked ? rows.findIndex((r) => same(r.nome, p.nome)) : -1;
       msg.textContent = mine >= 0 ? `Você está em ${mine + 1}º lugar de ${rows.length}.` : `${rows.length} ${rows.length === 1 ? 'piloto' : 'pilotos'} na turma ${asked}.`;
       // com 3 ou mais pilotos, os três primeiros sobem ao pódio (2º, 1º, 3º) e a lista começa no 4º
@@ -118,11 +141,15 @@ const Ranking = (() => {
       const el = box.querySelector('.me');
       if (el) el.scrollIntoView({ block: 'center' });
     } catch (e) {
-      if (asked === turma) msg.textContent = 'Não foi possível carregar o ranking. Confira a internet e tente de novo.';
+      if (asked !== turma || askedModo !== modo) return;
+      msg.textContent = e === OLD_DB
+        ? 'O ranking do Ultra-rápido ainda não foi ativado pelo professor.'
+        : 'Não foi possível carregar o ranking. Confira a internet e tente de novo.';
     }
   }
 
-  function open() {
+  function open(m) {
+    if (m && MODOS[m]) modo = m;
     document.querySelectorAll('.screen').forEach((el) => el.classList.remove('active'));
     screen.classList.add('active');
     const p = profile();
@@ -179,11 +206,12 @@ const Ranking = (() => {
   $('player-name').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('player-save').click(); });
   document.querySelectorAll('#player-turmas button').forEach((b) => b.addEventListener('click', () => { pickTurma = b.dataset.turma; $('player-error').textContent = ''; Sound.click(); paintTurma(); }));
   document.querySelectorAll('#rank-tabs button').forEach((b) => b.addEventListener('click', () => { turma = b.dataset.turma; Sound.click(); load(); }));
+  document.querySelectorAll('#rank-modes button').forEach((b) => b.addEventListener('click', () => { modo = b.dataset.modo; Sound.click(); load(); }));
   $('rank-back').addEventListener('click', () => { Sound.click(); exit(); });
   $('rank-me').addEventListener('click', () => { Sound.click(); askProfile(); });
 
   // ---------- Fim da corrida: envia a pontuação e mostra o pódio da turma ----------
-  async function afterRace(pontos, voltas, box) {
+  async function afterRace(pontos, voltas, box, m = 'normal') {
     box.innerHTML = '';
     const p = profile();
     if (!ready() || !p) return;
@@ -193,11 +221,12 @@ const Ranking = (() => {
     box.appendChild(note);
     try {
       let sent = true;
-      try { await sync(p, pontos, voltas); } catch (e) { sent = false; }
-      const rows = await list(p.turma);
+      try { await sync(p, pontos, voltas, m); } catch (e) { sent = false; }
+      const rows = await list(p.turma, m);
       if (!box.contains(note)) return;                   // a criança já saiu deste cartão
       const mine = rows.findIndex((r) => same(r.nome, p.nome));
-      note.textContent = mine >= 0 ? `Ranking da turma ${p.turma}: você está em ${mine + 1}º lugar!` : `Ranking da turma ${p.turma}`;
+      const titulo = m === 'ultra' ? `Ranking Ultra-rápido da turma ${p.turma}` : `Ranking da turma ${p.turma}`;
+      note.textContent = mine >= 0 ? `${titulo}: você está em ${mine + 1}º lugar!` : titulo;
       const ol = document.createElement('ol');
       ol.className = 'rank-list small';
       rows.slice(0, 5).forEach((r, i) => ol.appendChild(row(r, i + 1, i === mine)));
@@ -205,7 +234,9 @@ const Ranking = (() => {
       box.appendChild(ol);
       if (!sent) note.textContent = 'Não foi possível enviar sua pontuação agora. Ela ficou salva neste aparelho e será enviada na próxima vez.';
     } catch (e) {
-      note.textContent = 'Sem conexão com o ranking. Sua pontuação ficou salva neste aparelho e será enviada na próxima vez.';
+      note.textContent = e === OLD_DB
+        ? 'O ranking do Ultra-rápido ainda não foi ativado. Seu recorde ficou salvo neste aparelho e será enviado depois.'
+        : 'Sem conexão com o ranking. Sua pontuação ficou salva neste aparelho e será enviada na próxima vez.';
     }
   }
 
